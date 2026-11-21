@@ -1,0 +1,182 @@
+/* Mangas: an endless 3D ring of covers in a dark violet room. */
+.manga-shelf { --violet: #9d6bff; --violet-hi: #d9c4ff; position: relative; flex: 1; min-height: 0 }
+.manga-stage {
+  --card-w: clamp(110px, min(19cqw, 34cqh), 260px);
+  --card-h: calc(var(--card-w) * 1.32);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 2000px;
+  perspective-origin: 50% 32%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  outline: none;
+}
+.manga-stage:active { cursor: grabbing }
+.manga-stage:focus-visible { box-shadow: inset 0 0 0 1px #9d6bff66 }
+
+/* The room: ceiling grid in perspective, a light shaft, faint stars. */
+.manga-room { position: absolute; inset: 0; pointer-events: none }
+.manga-ceiling {
+  position: absolute;
+  left: -40%;
+  right: -40%;
+  top: -10%;
+  height: 70%;
+  transform-origin: 50% 0;
+  transform: perspective(700px) rotateX(62deg);
+  background:
+    repeating-linear-gradient(90deg, #9d6bff1c 0 1px, transparent 1px 120px),
+    repeating-linear-gradient(0deg, #9d6bff14 0 1px, transparent 1px 120px),
+    linear-gradient(90deg, transparent 49.85%, #c9a8ff55 50%, transparent 50.15%);
+  -webkit-mask-image: linear-gradient(#000 10%, transparent 85%);
+  mask-image: linear-gradient(#000 10%, transparent 85%);
+}
+.manga-beam {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 34%;
+  transform: translateX(-50%);
+  background: linear-gradient(#d9c4ffaa, #9d6bff40 60%, transparent);
+  box-shadow: 0 0 18px 3px #9d6bff40;
+}
+.manga-stars {
+  position: absolute;
+  inset: 0 0 40%;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, #c9b3ff99, transparent),
+    radial-gradient(1px 1px at 27% 38%, #c9b3ff66, transparent),
+    radial-gradient(1.5px 1.5px at 41% 15%, #e3d6ffaa, transparent),
+    radial-gradient(1px 1px at 63% 30%, #c9b3ff77, transparent),
+    radial-gradient(1px 1px at 78% 12%, #c9b3ff88, transparent),
+    radial-gradient(1.5px 1.5px at 88% 41%, #e3d6ff88, transparent),
+    radial-gradient(1px 1px at 55% 46%, #c9b3ff55, transparent),
+    radial-gradient(1px 1px at 6% 47%, #c9b3ff55, transparent);
+}
+
+.manga-ring {
+  position: relative;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  margin-top: calc(var(--card-h) * -0.3);
+}
+/* Glowing ring on the floor the cards stand on, drawn in 3D so it curves with them. */
+.manga-floor {
+  position: absolute;
+  left: 0;
+  top: calc(var(--card-h) / 2 + 10px);
+  border-radius: 50%;
+  transform: rotateX(90deg);
+  border: 3px solid #b48cff;
+  box-shadow:
+    0 0 14px 2px #9d6bffcc,
+    0 0 60px 12px #7c4dff55,
+    inset 0 0 120px 40px #2a1450aa;
+  background: radial-gradient(closest-side, #0a0612 70%, #1a0d33 96%, transparent);
+  pointer-events: none;
+}
+
+.manga-card {
+  --lit: 1;
+  --side: 0;
+  position: absolute;
+  left: calc(var(--card-w) / -2);
+  top: calc(var(--card-h) / -2);
+  width: var(--card-w);
+  height: var(--card-h);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.manga-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 3px solid color-mix(in srgb, var(--violet-hi) calc(35% + var(--lit) * 65%), var(--violet));
+  background: #0c0716;
+  box-shadow:
+    0 0 calc(8px + var(--lit) * 34px) calc(var(--lit) * 4px) color-mix(in srgb, var(--violet) calc(35% + var(--lit) * 50%), transparent),
+    inset 0 0 calc(14px + var(--side) * 30px) color-mix(in srgb, var(--violet) calc(30% + var(--side) * 50%), transparent);
+  filter: brightness(calc(.45 + var(--lit) * .65));
+}
+.manga-face > * { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none }
+.manga-cover { object-fit: cover }
+.manga-pixels {
+  object-fit: cover;
+  image-rendering: pixelated;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  opacity: calc(var(--side) * 1.1);
+}
+.manga-tint {
+  background: linear-gradient(180deg, #2a1260, #4b23a8 60%, #20104a);
+  mix-blend-mode: color;
+  opacity: calc(var(--side) * .85);
+}
+.manga-scan {
+  background:
+    repeating-linear-gradient(90deg, #0b0518 0 1.5px, transparent 1.5px 5px),
+    linear-gradient(180deg, #9d6bff22, transparent 40%, #9d6bff33);
+  opacity: calc(var(--side) * .85);
+}
+.manga-reflection {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 14px);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 18px;
+  transform: scaleY(-1);
+  filter: blur(2px) brightness(calc(.35 + var(--lit) * .4)) saturate(calc(1 - var(--side) * .6));
+  opacity: .5;
+  -webkit-mask-image: linear-gradient(to top, #000, transparent 55%);
+  mask-image: linear-gradient(to top, #000, transparent 55%);
+  pointer-events: none;
+}
+
+.manga-hud {
+  position: absolute;
+  z-index: 5;
+  inset: auto 0 22px;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  pointer-events: none;
+}
+.manga-caption { display: grid; justify-items: center; gap: 2px; text-shadow: 0 2px 10px #000 }
+.manga-caption strong { font-size: 22px; font-weight: 600; letter-spacing: .02em; color: #f3eeff }
+.manga-caption span { color: #b9a9dc; font-size: 13px }
+.manga-counter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #ddd2f5;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  pointer-events: auto;
+}
+.ticks { display: flex; align-items: center; gap: 9px }
+.ticks button {
+  width: 2px;
+  height: 20px;
+  padding: 0;
+  border-radius: 1px;
+  background: #ffffff59;
+  transition: width .25s, background-color .25s, box-shadow .25s;
+}
+.ticks button:hover { background: #fff }
+.ticks button.on {
+  width: 14px;
+  border-radius: 4px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px #fff, 0 0 10px #9d6bff99;
+}

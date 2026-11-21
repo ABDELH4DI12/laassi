@@ -1,0 +1,206 @@
+/* Store: my Odoo addons as app tiles in the dark jungle (same world as Works). */
+.stage--Store { --stage-bg: #04100a; --stage-ink: #e9f3df }
+.st {
+  --leaf: #8fe05a;
+  --ink: #e9f3df;
+  background: radial-gradient(120% 90% at 70% -15%, #1a4a2e, #0b2617 36%, #05140c 68%, #030a06);
+  color: var(--ink);
+  isolation: isolate;
+}
+.st-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none }
+.st-rays {
+  position: absolute;
+  inset: -30% -20% 20%;
+  background: repeating-linear-gradient(80deg,
+    transparent 0 80px, #d6ffaa0c 80px 120px, transparent 120px 210px, #ffecaa08 210px 236px, transparent 236px 320px);
+  filter: blur(10px);
+  -webkit-mask-image: linear-gradient(#000, transparent 75%);
+  mask-image: linear-gradient(#000, transparent 75%);
+}
+.st-leaves { opacity: .75 }
+.st-flies { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none }
+.st-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 22px clamp(18px, 4cqw, 44px) 32px;
+  scrollbar-width: thin;
+  scrollbar-color: #2b4a31 transparent;
+}
+
+/* Header: Odoo mark, intro, version and category filters */
+.st-head { display: grid; gap: 14px; max-width: 1120px; margin: 0 auto 22px }
+.st-brand { display: flex; align-items: center; gap: 14px }
+.st-brand .st-odoo { flex: none; width: 74px; height: 74px; margin-block: -26px; fill: #f3ecf2; filter: drop-shadow(0 0 10px #c79bbd66) }
+.st-brand p { margin: 0; max-width: 60ch; font-size: 14px; line-height: 1.6; color: #b9cfae }
+.st-filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px }
+.st-seg { display: flex; padding: 3px; border: 1px solid #c9ff9a2e; border-radius: 999px; background: #04100a99 }
+.st-seg button { padding: 5px 12px; border-radius: 999px; font: 500 12.5px/1.2 var(--font-mono); color: #cfe3c3 }
+.st-seg button[aria-pressed=true] { background: linear-gradient(180deg, #bff58a, #82cf4c); color: #0b1f10; font-weight: 700 }
+.st-cats { display: flex; flex-wrap: wrap; gap: 6px }
+.st-cats button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px 4px 5px;
+  border: 1px solid #8fe05a33;
+  border-radius: 999px;
+  background: #8fe05a0d;
+  font-size: 12.5px;
+  color: #d9ebcd;
+  transition: border-color .2s, background-color .2s;
+}
+.st-cats button:first-child { padding-inline-start: 12px }
+.st-cats button:hover { border-color: #8fe05a80 }
+.st-cats button[aria-pressed=true] { border-color: #bff58a; background: #8fe05a29; color: #fff }
+
+/* Odoo-style app icon: rounded tile in the category's colour */
+.st-icon {
+  --s: 52px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--s);
+  height: var(--s);
+  border-radius: calc(var(--s) * .26);
+  background:
+    linear-gradient(160deg, #ffffff38, transparent 46%),
+    linear-gradient(150deg, hsl(var(--hue) 62% 56%), hsl(var(--hue) 58% 34%));
+  box-shadow: inset 0 1px #ffffff59, inset 0 -2px 4px #0003, 0 6px 16px -6px hsl(var(--hue) 70% 30%), 0 0 0 1px #0006;
+}
+.st-icon svg { width: 54%; height: 54%; fill: none; stroke: #fff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 1px #0004) }
+.st-icon--lg { --s: 72px }
+.st-icon--xs { --s: 22px }
+.st-icon--xs svg { stroke-width: 2.4 }
+
+/* Cards */
+.st-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: clamp(14px, 2.2cqw, 22px);
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.st-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #c9ff9a21;
+  border-radius: 16px;
+  background: linear-gradient(170deg, #0f2a1ae6, #081a10e6);
+  box-shadow: 0 16px 30px -18px #000;
+  color: var(--ink);
+  text-align: start;
+  animation: st-in .6s cubic-bezier(.2,.8,.2,1) calc(var(--d) * 60ms) backwards;
+  transition: transform .3s cubic-bezier(.2,.8,.2,1), border-color .3s, box-shadow .3s;
+}
+@keyframes st-in { from { opacity: 0; transform: translateY(18px) } }
+.st-card:hover, .st-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: hsl(var(--hue) 60% 60% / .5);
+  box-shadow: 0 22px 40px -20px #000, 0 0 30px -12px hsl(var(--hue) 70% 50% / .7);
+  outline: none;
+}
+.st-card-top { display: flex; align-items: center; gap: 13px; min-width: 0 }
+.st-card-title { display: grid; gap: 4px; min-width: 0; flex: 1 }
+.st-name { font: 600 18px/1.2 var(--font-display); color: #f2f9ea }
+.st-tech { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 12px/1.2 var(--font-mono); color: #8fb383; direction: ltr; text-align: start }
+[dir=rtl] .st-tech { text-align: right }
+.st-badge { align-self: flex-start; flex: none; padding: 3px 9px; border-radius: 999px; background: linear-gradient(180deg, #ffe3a3, #e8b04f); color: #2a1a06; font-size: 11px; font-weight: 700 }
+.st-summary { font-size: 13.5px; line-height: 1.55; color: #c4d8b8 }
+.st-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #c9ff9a17 }
+.st-versions { display: flex; flex-wrap: wrap; gap: 5px; direction: ltr }
+.st-ver { padding: 2px 7px; border: 1px solid #c9ff9a33; border-radius: 6px; font: 600 11px/1.3 var(--font-mono); color: #cfe9bd; background: #8fe05a12 }
+.st-price { font: 700 15px/1 var(--font-sans); color: #f2f9ea }
+.st-price.is-free { color: #bff58a }
+
+/* Module page (slides in) */
+.st-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  /* A plain shade: a blur here re-blurs the whole page every frame and flickers. */
+  background: #020805c7;
+  animation: st-fade .25s ease-out both;
+}
+@keyframes st-fade { from { opacity: 0 } }
+.st-panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: min(440px, 100%);
+  overflow-y: auto;
+  padding: 24px 24px 28px;
+  background: linear-gradient(180deg, #0f2a1a, #06140c);
+  border-inline-start: 1px solid #c9ff9a2e;
+  box-shadow: -30px 0 60px -20px #000;
+  animation: st-open .3s ease-out both;
+  scrollbar-width: thin;
+  scrollbar-color: #2b4a31 transparent;
+}
+/* A quiet fade, no sideways slide. */
+@keyframes st-open { from { opacity: 0; transform: translateY(10px) } }
+.st-close {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 14px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #e9f3df;
+}
+.st-close:hover { background: #c9ff9a1f }
+.st-close svg, .st-link svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round }
+.st-panel-head { display: flex; align-items: center; gap: 16px; padding-inline-end: 34px }
+.st-panel-head h3 { margin: 0 0 5px; font: 600 26px/1.2 var(--font-display); color: #f2f9ea }
+.st-buy { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; padding: 14px 0; border-block: 1px solid #c9ff9a1f }
+.st-buy-price { font: 600 26px/1 var(--font-display); color: #f2f9ea }
+.st-buy-links { display: flex; gap: 8px }
+.st-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #c9ff9a42;
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.st-link:hover { border-color: #c9ff9a8c; background: #c9ff9a14 }
+.st-link .st-odoo { width: 34px; height: 34px; margin: -10px -4px; fill: currentColor; stroke: none }
+.st-link--primary { border-color: transparent; background: linear-gradient(180deg, #bff58a, #82cf4c); color: #0b1f10; box-shadow: 0 8px 22px -10px #8fe05acc }
+.st-link.is-off { opacity: .45; cursor: not-allowed }
+.st-shot { display: block; width: 100%; margin-top: 18px; border-radius: 10px; border: 1px solid #c9ff9a24 }
+.st-desc { margin: 18px 0 0; font-size: 14.5px; line-height: 1.7; color: #d4e3c9 }
+.st-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: #86b874;
+}
+.st-label::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, #8fe05a59, transparent) }
+[dir=rtl] .st-label::after { background: linear-gradient(-90deg, #8fe05a59, transparent) }
+.st-features { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none }
+.st-features li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #e1efd6; animation: st-rise .5s ease-out calc(.25s + var(--i) * 70ms) backwards }
+.st-features li::before { content: ""; flex: none; width: 9px; height: 9px; border-radius: 0 70% 0 70%; background: var(--leaf); box-shadow: 0 0 8px #8fe05aaa; transform: rotate(-12deg) }
+@keyframes st-rise { from { opacity: 0; transform: translateY(8px) } }
+.st-meta { display: grid; gap: 12px; margin: 24px 0 0; padding: 16px; border-radius: 12px; background: #04100a80; border: 1px solid #c9ff9a1a }
+.st-meta div { display: grid; grid-template-columns: 9.5em 1fr; align-items: center; gap: 10px }
+.st-meta dt { font-size: 12px; color: #86b874 }
+.st-meta dd { margin: 0; font-size: 13.5px; color: #e9f3df }
+.st-deps { display: flex; flex-wrap: wrap; gap: 5px }
+.st-deps code { padding: 2px 7px; border-radius: 6px; background: #8fe05a14; font: 12px/1.4 var(--font-mono); color: #cfe9bd }
+@media (prefers-reduced-motion: reduce) {
+  .st-card, .st-shade, .st-panel, .st-features li { animation: none }
+}

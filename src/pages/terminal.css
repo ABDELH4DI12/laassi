@@ -1,0 +1,69 @@
+/* Terminal: a plain shell. The only decoration is the dock's glowing ivy,
+   grown at random around the window's border. No animations. */
+.stage--Terminal { --stage-bg: #070707; --stage-ink: #e8e8e8 }
+.terminal {
+  background: #070707;
+  color: #cfcfcf;
+  font: 14px/1.65 var(--font-mono);
+  cursor: text;
+}
+
+/* The ivy runs along the edges, so the text sits inside it. */
+.t-screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 38px 56px 44px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  /* Scrolled text fades out before it reaches the vines at the top and bottom. */
+  -webkit-mask-image: linear-gradient(transparent 0, #000 34px, #000 calc(100% - 26px), transparent);
+  mask-image: linear-gradient(transparent 0, #000 34px, #000 calc(100% - 26px), transparent);
+  /* A halo in the background colour keeps text readable where a vine passes behind it. */
+  text-shadow: 0 0 3px #070707, 0 0 6px #070707, 0 0 10px #070707;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+.t-out { margin-bottom: .7em }
+.t-gap { margin-top: .8em }
+.t-indent { padding-inline-start: 2ch }
+.t-bright { color: #fff; font-weight: 600 }
+.t-dim { color: #7a7a7a }
+.t-err { color: #f2615f }
+.t-user { color: #8fe05a; font-weight: 600 }
+.t-path, .t-dir { color: #6ea8fe; font-weight: 600 }
+.t-cmd {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: #ffffff40;
+  text-underline-offset: 3px;
+}
+.t-cmd:hover, .t-cmd:focus-visible { text-decoration-color: currentColor; outline: none }
+.t-ls { display: flex; flex-wrap: wrap; column-gap: 2ch }
+/* Columns line up in any language (Arabic isn't monospaced, so no space padding). */
+.t-table { display: grid; column-gap: 3ch; justify-content: start }
+.t-table--2 { grid-template-columns: max-content auto }
+.t-table--3 { grid-template-columns: max-content max-content auto }
+.t-span { grid-column: 1 / -1 }
+.t-out[dir=rtl] { line-height: 1.85 }
+.t-input { display: flex; align-items: baseline }
+.t-input label { flex: none; white-space: pre; cursor: text }
+.t-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font: inherit;
+  color: #fff;
+  caret-color: #e8e8e8;
+  cursor: text;
+}
+@container stage (max-width: 640px) {
+  .t-screen { padding: 30px 34px 34px 40px; font-size: 13px }
+}
+/* Avoid the browser zooming in on the prompt on phones. */
+@media (hover: none) { .t-input input { font-size: 16px } }

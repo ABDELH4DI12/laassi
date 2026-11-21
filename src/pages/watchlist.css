@@ -1,0 +1,183 @@
+/* WatchList: theatre drapes frame a stage lit by the chosen film. --glow follows the film. */
+.stage--WatchList { --stage-bg: #070405; --stage-ink: #f7e9e0 }
+.cinema { background: #070405; isolation: isolate }
+
+/* The stage, framed by the drapes. */
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Content sits between the side drapes, below the swags, above the pooled fabric. */
+  padding: clamp(40px, 9cqh, 74px) max(13%, 110px) clamp(40px, 10cqh, 80px);
+}
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-size: cover;
+  background-position: center 30%;
+  opacity: .3;
+  transform: scale(1.04);
+  animation: backdrop-in 1.6s ease both;
+}
+.backdrop.is-out { z-index: -3; animation: none }
+@keyframes backdrop-in { from { opacity: 0 } }
+.stage-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, #070405f0, #07040591 55%, #070405c7),
+    linear-gradient(#07040532, #070405d9 60%, #070405f7);
+}
+[dir=rtl] .stage-shade { background: linear-gradient(-90deg, #070405e6, #07040566 55%, #07040599), linear-gradient(transparent 55%, #070405f2) }
+
+/* Before the show: the stage stays dark while the curtains open; the films then rise in slowly. */
+.stage > .backdrop { transition: opacity 2.2s ease }
+.stage > .feature { transition: opacity 1.6s ease .3s, transform 1.8s cubic-bezier(.16,1,.3,1) .3s }
+.stage > .rail { transition: opacity 1.6s ease .9s, transform 1.8s cubic-bezier(.16,1,.3,1) .9s }
+.stage.is-waiting > .feature, .stage.is-waiting > .rail { transform: translateY(28px) }
+.stage.is-waiting > .backdrop, .stage.is-waiting > .feature, .stage.is-waiting > .rail { opacity: 0 }
+
+/* The featured film */
+.feature {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(22px, 4cqw, 52px);
+}
+.poster.feature-poster {
+  flex: none;
+  width: auto;
+  height: min(100%, 360px);
+  aspect-ratio: 2 / 3;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 30px 60px -20px #000, 0 0 0 1px #ffffff1a, 0 0 70px -20px var(--glow);
+  animation: feature-poster-in 1.2s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes feature-poster-in { from { opacity: 0; transform: translateY(14px) scale(.97) } }
+.feature-text { min-width: 0; max-width: 46ch }
+.feature-text > * { animation: feature-in 1.1s cubic-bezier(.16,1,.3,1) both }
+.feature-text > :nth-child(2) { animation-delay: .12s }
+.feature-text > :nth-child(3) { animation-delay: .24s }
+.feature-text > :nth-child(4) { animation-delay: .36s }
+.feature-text > :nth-child(5) { animation-delay: .48s }
+@keyframes feature-in { from { opacity: 0; transform: translateY(12px) } }
+.feature-meta { display: block; font-size: 12px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: color-mix(in srgb, var(--glow) 55%, #fff) }
+.feature-meta i { margin: 0 8px; font-style: normal; opacity: .5 }
+.feature-text h2 { margin: 10px 0 8px; font: 600 clamp(28px, 4.6cqw, 54px)/1.1 var(--font-display); color: #fff; text-shadow: 0 4px 30px #0009 }
+.feature-by { display: block; font-size: 14.5px; color: #e5d3c6 }
+.feature-stars { display: flex; gap: 3px; margin-top: 10px; font-size: 18px }
+.feature-stars i { font-style: normal; color: #ffffff33 }
+.feature-stars i.on { color: #ffd36b; text-shadow: 0 0 8px #ffd36b88 }
+.feature-text p { margin: 16px 0 0; font-size: 15.5px; line-height: 1.7; color: #eadbd0 }
+
+/* Poster row */
+.rail {
+  flex: none;
+  display: flex;
+  gap: 12px;
+  margin-top: clamp(12px, 3cqh, 24px);
+  padding: 10px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+.rail-item {
+  flex: none;
+  height: clamp(74px, 15cqh, 120px);
+  aspect-ratio: 2 / 3;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 7px;
+  opacity: .5;
+  filter: saturate(.7);
+  transition: opacity .3s, filter .3s, transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s;
+}
+.rail-item:hover { opacity: .85; filter: none }
+.rail-item.is-on { opacity: 1; filter: none; transform: translateY(-4px); box-shadow: 0 0 0 2px #fff, 0 10px 24px -8px var(--glow) }
+.rail-item:focus-visible { outline: 2px solid #fff; outline-offset: 2px }
+.poster { display: block; width: 100%; height: 100%; object-fit: cover }
+span.poster { position: relative; background-size: cover }
+.poster-text { position: absolute; inset: auto 0 0; display: grid; gap: 2px; padding: 9%; background: linear-gradient(transparent, #000a) }
+.poster-text b { font: 600 11px/1.2 var(--font-display); color: #fff }
+.poster-text small { font-size: 9px; color: #fffc }
+.feature-poster .poster-text b { font-size: 20px }
+
+/* 3D drapery (Curtain.jsx, three.js) over a thin gold frame. */
+.drapes { position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: hidden }
+.drapes canvas { position: absolute; inset: 0; width: 100%; height: 100% }
+/* The gold frame runs behind the curtains. */
+.drapes-frame { position: absolute; z-index: -1; inset: 6px 10px 9px; border: 1px solid #ad783a99; border-radius: 12px }
+
+@container stage (max-width: 760px) {
+  /* Keep tablet content safely inside the 10% curtain opening. */
+  .stage { padding-inline: max(11%, 68px) }
+  .feature { flex-direction: column; align-items: flex-start }
+  .poster.feature-poster { height: 220px }
+}
+@container stage (max-width: 520px) {
+  .stage {
+    padding: 48px max(24px, 9%) 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .feature {
+    flex: none;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 82px minmax(0,1fr);
+    align-items: start;
+    gap: 12px;
+    overflow: visible;
+  }
+  .poster.feature-poster {
+    grid-row: 1 / span 2;
+    width: 82px;
+    height: 123px;
+    border-radius: 7px;
+    box-shadow: 0 16px 30px -14px #000,0 0 0 1px #ffffff1a;
+  }
+  .feature-text { max-width: none; min-width: 0 }
+  .feature-meta { font-size: 9px; letter-spacing: .13em }
+  .feature-meta i { margin: 0 4px }
+  .feature-text h2 {
+    margin: 5px 0 4px;
+    font-size: clamp(22px,8.5cqw,30px);
+    line-height: 1.04;
+    overflow-wrap: anywhere;
+  }
+  .feature-by { font-size: 11.5px }
+  .feature-stars { margin-top: 5px; font-size: 13px }
+  .feature-text p {
+    grid-column: 1 / -1;
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+  }
+  .rail {
+    width: 100%;
+    min-height: 102px;
+    margin-top: 14px;
+    padding: 6px 2px 10px;
+    gap: 9px;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .rail-item { height: 88px; border-radius: 5px }
+  .rail-item.is-on { transform: translateY(-2px) }
+}
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .feature-poster, .feature-text > * { animation: none }
+}

@@ -1,0 +1,13 @@
+/* The dock's glowing ivy, grown along a border (see IvyBorder.jsx). */
+.ivy-border {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  filter: drop-shadow(0 0 1.5px #e4ffb8) drop-shadow(0 0 4px #8fe05a);
+}
+.ivy-border svg { display: block }
+.ivy-stem, .ivy-curl { fill: none; stroke: #e4ffb8; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round }
+.ivy-curl { stroke-width: .9 }
+.ivy-leaf { fill: #8fe05a; fill-opacity: .85 }
+.ivy-bud { fill: #fffbe8 }

@@ -1,0 +1,162 @@
+/* Education: a classroom chalkboard that writes itself, and that visitors can draw on. */
+.stage--education { --stage-bg: #120f0c; --stage-ink: #efe6d6 }
+.classroom {
+  display: grid;
+  place-items: center;
+  padding: 18px clamp(10px, 3cqw, 32px) 18px;
+  background: radial-gradient(90% 70% at 50% 15%, #2c2319, #120f0c 70%);
+}
+.board-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1180px;
+  height: 100%;
+  max-height: 740px;
+  padding: 16px 16px 0;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(90deg, #00000014 0 2px, transparent 2px 9px),
+    repeating-linear-gradient(90deg, #ffffff08 0 1px, transparent 1px 23px),
+    linear-gradient(180deg, #7b5535, #5a3b22 50%, #6e4a2d);
+  box-shadow: 0 30px 70px #000c, inset 0 1px #ffffff26, inset 0 -2px #0006;
+}
+.chalkboard {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 3px;
+  background:
+    radial-gradient(40% 28% at 22% 30%, #ffffff0f, transparent 70%),
+    radial-gradient(34% 24% at 72% 66%, #ffffff0b, transparent 70%),
+    radial-gradient(50% 40% at 88% 18%, #ffffff09, transparent 70%),
+    linear-gradient(160deg, #2b4a39, #1f3a2c 50%, #1a3226);
+  box-shadow: inset 0 0 0 2px #0f1f17, inset 0 12px 30px #0007, inset 0 -6px 20px #0005;
+}
+.chalkboard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain);
+  opacity: .07;
+  pointer-events: none;
+}
+/* Old eraser swipes. */
+.chalkboard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 9% at 30% 78%, #ffffff0a, transparent 70%),
+    radial-gradient(45% 7% at 64% 40%, #ffffff08, transparent 70%),
+    radial-gradient(30% 6% at 80% 88%, #ffffff09, transparent 70%);
+  transform: rotate(-4deg);
+}
+.chalk-text {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: clamp(14px, 3cqw, 36px) clamp(18px, 4cqw, 52px) 64px;
+  font-family: "Caveat", "Aref Ruqaa", "Segoe Print", cursive;
+  color: #f4f3ea;
+  filter: url(#chalk-grain);
+}
+.chalk-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px 24px }
+.chalk-head h2 { position: relative; margin: 0; font-size: clamp(38px, 6cqw, 70px); font-weight: 700; line-height: 1 }
+.chalk-date { font-size: clamp(18px, 2.4cqw, 26px); color: #e9e7da; opacity: .85 }
+.chalk-entries {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 40px 90px;
+  margin-top: clamp(18px, 5cqh, 56px);
+}
+.chalk-entry { position: relative }
+.chalk-period { position: relative; display: inline-block; padding: 6px 18px; font-size: 28px; color: #ffe58a }
+.chalk-entry h3 { margin: 16px 0 4px; font-size: clamp(26px, 3.6cqw, 42px); font-weight: 700; line-height: 1.05 }
+.chalk-school { margin: 0; font-size: 27px; color: #d6e8f6 }
+.chalk-note { max-width: 32ch; margin: 10px 0 0; font-size: 23px; line-height: 1.25; color: #e9e7da }
+.chalk-hint {
+  position: absolute;
+  bottom: 16px;
+  inset-inline-end: clamp(14px, 3cqw, 40px);
+  font-size: 22px;
+  color: #f4f3eaa6;
+  transform: rotate(-2deg);
+}
+.chalk-write { clip-path: inset(-25% 100% -35% -3%); animation: chalk-write .9s linear var(--w) forwards }
+span.chalk-write { display: inline-block }
+/* Arabic is written from the right. */
+[dir=rtl] .chalk-write { clip-path: inset(-25% -3% -35% 100%) }
+@keyframes chalk-write { to { clip-path: inset(-25% -3% -35% -3%) } }
+
+.doodle { position: absolute; overflow: visible; pointer-events: none }
+.doodle path { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: chalk-draw .7s ease-out var(--w) forwards }
+@keyframes chalk-draw { to { stroke-dashoffset: 0 } }
+.doodle-underline { left: -4px; bottom: -16px; width: calc(100% + 14px); height: 18px; color: #ffe58a }
+.doodle-circle { inset: -6px -12px; width: calc(100% + 24px); height: calc(100% + 12px); color: #ff9ec7 }
+.doodle-circle path { stroke-width: 2.4 }
+.doodle-arrow { top: 12px; inset-inline-end: -84px; width: 70px; height: 32px; color: #9fd3ff }
+[dir=rtl] .doodle-arrow { transform: scaleX(-1) }
+.doodle-star { top: -4px; inset-inline-end: 8px; width: 36px; height: 36px; color: #ffe58a }
+.doodle-star path { stroke-width: 2.2 }
+
+.chalk-canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; transition: opacity .55s }
+.chalk-canvas.is-wiping { opacity: 0 }
+.eraser-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -180px;
+  width: 160px;
+  background: linear-gradient(90deg, transparent, #ffffff1a, transparent);
+  animation: eraser-sweep .65s ease-in-out forwards;
+}
+@keyframes eraser-sweep { to { left: 100% } }
+
+.chalk-tray {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 36px;
+  margin: 0 -16px;
+  padding: 0 34px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(#6b472b, #4a301b);
+  box-shadow: inset 0 4px 6px #0008, 0 1px #ffffff1a;
+}
+.chalk-stick {
+  width: 46px;
+  height: 11px;
+  padding: 0;
+  border-radius: 3px;
+  background: linear-gradient(var(--c), color-mix(in srgb, var(--c) 70%, #6b6b6b));
+  box-shadow: 0 2px 2px #0007;
+  transform: translateY(3px) rotate(-2deg);
+  transition: transform .2s, box-shadow .2s;
+}
+.chalk-stick:hover { transform: translateY(0) rotate(-3deg) }
+.chalk-stick.is-picked { transform: translateY(-6px) rotate(-7deg); box-shadow: 0 7px 8px #0008, 0 0 12px color-mix(in srgb, var(--c) 55%, transparent) }
+.chalk-eraser {
+  position: relative;
+  width: 86px;
+  height: 26px;
+  margin-inline-start: auto;
+  padding: 0;
+  border-radius: 4px;
+  background: linear-gradient(#cfa673, #9f7a49);
+  box-shadow: 0 3px 3px #0008, inset 0 1px #ffffff33;
+  transition: transform .2s;
+}
+.chalk-eraser span { position: absolute; inset: auto 0 0; height: 8px; border-radius: 0 0 4px 4px; background: linear-gradient(#5d5d5d, #3d3d3d) }
+.chalk-eraser:hover { transform: translateY(-2px) }
+@container stage (max-width: 760px) {
+  .doodle-arrow { display: none }
+  .chalk-entries { gap: 34px }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chalk-write, .doodle path, .eraser-sweep { animation: none; clip-path: none; stroke-dashoffset: 0 }
+}

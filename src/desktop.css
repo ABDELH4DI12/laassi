@@ -1,343 +1,422 @@
-:root {
-  color-scheme: dark;
-  --ink: #f1f2fa;
-  --muted: #a5a9bb;
-  --edge: #ffffff24;
-  font-family: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
-  color: var(--ink);
-  background: #070a13;
-}
-* {
-  box-sizing: border-box;
-}
-body {
-  margin: 0;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-}
-button,
-select {
-  font: inherit;
-  color: inherit;
-}
-button {
-  cursor: pointer;
-  border: 0;
-  background: none;
-}
-button:focus-visible,
-select:focus-visible {
-  outline: 2px solid #a6c7ff;
-  outline-offset: 3px;
-}
-button:hover {
-  background-color: #ffffff10;
-}
-svg {
-  display: block;
-}
-button {
-  touch-action: manipulation;
-}
 #wall {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: -1;
   pointer-events: none;
+}
+.pixel-forest {
+  background: #080812 url("./assets/pixel-forest.jpg") center center / cover no-repeat;
+}
+* { box-sizing: border-box }
+body { margin: 0 }
+.desktop {
+  font-synthesis: weight;   /* never fake italics: Arabic faces have none */
+  /* Typefaces (see fonts.js): each stack pairs a Latin face with an Arabic one. */
+  --font-sans: "Manrope Variable", "Manrope", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-serif: "Fraunces", "Amiri", Georgia, serif;
+  --font-display: "Fraunces", "Aref Ruqaa", Georgia, serif;
+  --font-mono: "JetBrains Mono Variable", "IBM Plex Sans Arabic", ui-monospace, monospace;
+  isolation: isolate;
+  --ink: #152338; --muted: #4c5b70; --chrome: #f3f7fb; --glass: #f5f9fff0; --panel: #f8fbff; --line: #20324828; --field: #e9eff6;
+  color-scheme: light; color: var(--ink); height: 100dvh;
+}
+/* Night: warm smoked glass. */
+.desktop[data-theme="dark"] {
+  --ink: #f1e6d6; --muted: #a8998a; --chrome: #08070899; --glass: #100c0bd9; --panel: #110d0ccc; --line: #f5d9b01f; --field: #ffffff0d;
+  --edge: #ffcf8a24;
+  color-scheme: dark;
+}
+button,select,input { font: inherit; color: inherit; cursor: pointer }
+button { border: none; background: none }
+button:focus-visible,select:focus-visible,input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.bar,.dock,.panel { border: 1px solid var(--line); box-shadow: 0 6px 25px #1b34511c }
+.bar { background: var(--chrome); -webkit-backdrop-filter: blur(12px) saturate(1.2); backdrop-filter: blur(12px) saturate(1.2) }
+[data-theme="dark"] .bar { box-shadow: 0 1px 0 #0006, 0 8px 24px #0005 }
+[data-theme="dark"] .panel {
+  background: linear-gradient(155deg, #17110ff2, #0e0b0af7);
+  box-shadow: 0 28px 70px #000b, 0 0 0 1px #0008, inset 0 1px var(--edge);
 }
 .bar {
-  height: 48px;
   position: relative;
-  z-index: 2;
-  background: #080b14ea;
-  border-bottom: 1px solid #ffffff17;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 clamp(14px, 2.6vw, 44px);
-  gap: 10px;
+  z-index: 5;
+  width: 100%;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-width: 0 0 1px;
 }
-.side,
-.brand,
-.barbutton,
-.dategroup {
-  display: flex;
-  align-items: center;
-}
-.side {
-  gap: 18px;
-}
-.brand {
-  gap: 11px;
-  font-size: 15px;
-  font-weight: 650;
-  white-space: nowrap;
-  letter-spacing: -0.4px;
-}
-.logo {
-  width: 24px;
-  height: 24px;
-  color: #bdceff;
-}
-.os {
-  color: #abb1c3;
-  font-weight: 450;
-}
-.rule {
-  height: 16px;
-  width: 1px;
-  background: #ffffff29;
-}
-.barbutton {
-  font-size: 14px;
-  gap: 8px;
-  padding: 7px;
-  border-radius: 6px;
-}
-.barbutton[aria-expanded="true"] {
-  background: #ffffff16;
-}
-.baricon {
-  width: 17px;
-  height: 17px;
-}
-.dategroup {
-  gap: 12px;
-  font-size: 13px;
-  letter-spacing: 0.1px;
-  font-variant-numeric: tabular-nums;
-}
-.time {
-  font-weight: 620;
-}
-.dock-zone {
+.owner-name {
   position: absolute;
-  z-index: 2;
-  bottom: max(24px, env(safe-area-inset-bottom));
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
+  left: 10px;
+  max-width: calc(50% - 92px);
+  overflow: hidden;
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
+  font-size: 12px;
+  font-weight: 560;
+  letter-spacing: .025em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+.dategroup,.settings-toggle,.window-head,.setting,.segments { display: flex; align-items: center }
+.dategroup { gap: 12px; font-size: 14px; font-variant-numeric: tabular-nums }
+.time { border-inline-start: 1px solid var(--line); padding-inline-start: 12px; font-weight: 650 }
+.settings-toggle { position: absolute; right: 8px; height: 28px; gap: 7px; border-radius: 8px; padding: 0 8px; font-size: 11px; font-weight: 650 }
+.baricon { width: 18px; height: 18px }
+.settings-toggle:hover,.settings-toggle[aria-expanded=true],.close:hover { background: var(--field) }
+.settings-toggle[aria-expanded=true] { box-shadow: inset 0 -2px var(--accent) }
 .dock {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  background: linear-gradient(160deg, #1d2337ed, #101421f2);
-  box-shadow:
-    0 12px 38px #01030c99,
-    inset 0 1px 0 #ffffff0f;
-  border: 1px solid #ffffff32;
-  border-radius: 22px;
-  padding: 9px 10px 8px;
-  gap: 3px;
-  backdrop-filter: blur(18px);
+  position: fixed;
+  z-index: 3;
+  inset-block-start: 34px;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  width: 86px;
+  overflow-y: auto;
+  border-width: 0 1px 0 0;
+  border-radius: 0;
+  padding: 10px 7px;
+  display: grid;
+  align-content: start;
+  gap: 4px;
 }
-.dock button,
-.app-grid button {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 6px;
-  position: relative;
-  border-radius: 12px;
+/* Overgrown dock: pitch black wall with glowing ivy climbing down it.
+   The vines are always lit; they grow in once on load and glow brighter on hover. */
+.dock {
+  --glow: #e4ffb8;
+  --bloom: #8fe05a;
+  background: #000;
+  border: none;
+  box-shadow: none;
+  padding-inline: 7px;
+  gap: 0;
+  overflow-x: hidden;
 }
 .dock button {
-  min-width: 62px;
-  padding: 3px 4px 2px;
-}
-.tile {
-  width: 44px;
-  height: 44px;
-  display: block;
   position: relative;
   isolation: isolate;
-  transition: transform 0.18s ease;
-  filter: drop-shadow(0 2px 2px #03040b88);
+  height: 96px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 6px;
+  border-radius: 0;
+  padding: 0 1px;
+  font-size: 12px;
+  letter-spacing: .02em;
+  overflow-wrap: anywhere;
+  color: #e6d9c4cc;
+  transition: color .25s;
 }
-.tile img {
+.dock button:focus { outline: none }
+.dock button:focus-visible { outline: 2px solid #d9f2ae; outline-offset: -2px }
+/* Icon plaque: a small dark stone disc the glowing glyph is set into. */
+.plaque {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, #1d1915, #0a0807 70%);
+  box-shadow: inset 0 1px #ffffff14, inset 0 -2px 6px #000c, 0 0 0 1px #00000080, 0 4px 10px #000a;
+  transition: transform .25s, box-shadow .25s;
+}
+.glyph {
+  width: 28px;
+  height: 28px;
+  overflow: visible;
+  fill: none;
+  stroke: #f4e7cf;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke .2s;
+}
+.glyph .glyph-fill { fill: #f4e7cf; stroke: none }
+.glyph .glyph-thin { stroke-width: 1.2; opacity: .75 }
+.glyph .glyph-leaf { fill: #8fe05a; stroke: none }
+.plaque--large { width: 64px; height: 64px }
+.plaque--large .glyph { width: 38px; height: 38px }
+.vine {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
   width: 100%;
   height: 100%;
+  overflow: visible;
+  pointer-events: none;
 }
-.dock button:hover .tile {
-  transform: translateY(-4px);
+.vine path { fill: none; stroke-linecap: round; stroke-width: 1.1 }
+.vine path.leaf { stroke: none }
+.vine-rest path { stroke: #18210f }
+.vine-rest .leaf { fill: #141d0c }
+.vine-rest .bud { fill: #1b2214 }
+.vine-lit {
+  opacity: .78;
+  transition: opacity .25s;
 }
-.caption {
-  font-size: 11.5px;
-  color: #e4e6f0;
-  letter-spacing: 0.05px;
+.vine-lit path {
+  stroke: var(--glow);
+  stroke-dasharray: 1;
+  animation: vine-grow .9s ease-out calc(.3s + var(--b) * .14s + var(--i) * .12s) both;
 }
-.dock-rule {
-  width: 1px;
-  height: 39px;
-  background: #ffffff23;
-  margin: 0 5px;
+.vine-lit .leaf,.vine-lit .bud {
+  fill: var(--bloom);
+  animation: vine-catch .4s calc(.75s + var(--b) * .14s + var(--i) * .05s) both;
 }
-.dock button[aria-pressed="true"] .caption {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.vine-lit path.leaf { opacity: .85 }
+.vine-lit .bud { fill: #fffbe8 }
+@keyframes vine-grow { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+@keyframes vine-catch { from { opacity: 0 } }
+.dock button:is(:hover,:focus-visible,[aria-pressed=true]) { color: #fff6e6 }
+.dock button:is(:hover,:focus-visible,[aria-pressed=true]) .plaque {
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px #ffffff1f, inset 0 -2px 6px #000c, 0 0 0 1px #8fe05a40, 0 0 14px #8fe05a33, 0 4px 10px #000a;
 }
-.panel {
-  position: absolute;
-  z-index: 4;
-  background: linear-gradient(145deg, #191e2ffb, #101421fc);
-  border: 1px solid var(--edge);
-  border-radius: 15px;
-  box-shadow: 0 22px 70px #0008;
+.dock button:is(:hover,:focus-visible,[aria-pressed=true]) .glyph { stroke: #fff8e8 }
+.dock button:is(:hover,:focus-visible,[aria-pressed=true]) .vine-lit {
+  opacity: 1;
 }
-.panel[hidden] {
-  display: none;
-}
-.launcher {
-  top: 57px;
-  left: clamp(16px, 10vw, 170px);
-  width: min(330px, calc(100vw - 32px));
-  padding: 18px;
-}
-.panel h1,
-.panel h2 {
-  font-size: 16px;
-  letter-spacing: -0.3px;
+.panel { position: fixed; z-index: 4; background: var(--panel); border-radius: 17px; overflow: auto; max-height: calc(100dvh - 68px) }
+/* Settings floats above any open window. */
+.preferences { z-index: 6; top: 42px; right: 8px; width: min(340px,calc(100vw - 102px)) }
+.window { top: calc(50% + 17px); left: calc(50% + 43px); transform: translate(-50%,-50%); width: min(430px,calc(100vw - 114px)); animation: window-in .22s cubic-bezier(.2,.8,.2,1) }
+.preferences { animation: prefs-in .18s cubic-bezier(.2,.8,.2,1) }
+@keyframes window-in { from { opacity: 0; transform: translate(-50%,-47%) scale(.97) } }
+@keyframes prefs-in { from { opacity: 0; transform: translateY(-6px) } }
+.window-head { justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--line) }
+h1 { font-size: 16px; font-weight: 600; letter-spacing: .01em; margin: 0 }
+.close { width: 32px; height: 32px; border-radius: 8px; font-size: 22px }
+.settings { padding: 2px 16px 10px }
+.setting { gap: 10px; justify-content: space-between; min-height: 54px; font-size: 14px }
+.setting + .setting { border-top: 1px solid var(--line) }
+select,.segments,input[type=color] { background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 6px; max-width: 55% }
+.segments { padding: 2px }
+.segments button { padding: 5px 9px; border-radius: 6px }
+.segments button[aria-pressed=true] { background: var(--panel); box-shadow: inset 0 -2px var(--accent) }
+input[type=color] { width: 48px; height: 34px; padding: 2px 4px }
+/* Desktop shortcuts: the CV sections, set out on the screen like files. */
+.shortcuts {
+  position: fixed;
+  z-index: 2;
+  top: 52px;
+  inset-inline-end: 18px;
   margin: 0;
-  font-weight: 600;
-}
-.app-grid {
-  margin-top: 16px;
+  padding: 0;
+  list-style: none;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
-.app-grid button {
-  padding: 8px 3px;
-}
-.window {
-  left: 50%;
-  top: 46%;
-  transform: translate(-50%, -50%);
-  width: min(460px, calc(100vw - 32px));
-  overflow: auto;
-  max-height: calc(100dvh - 160px);
-}
-.window-head {
-  padding: 10px 12px 10px 18px;
-  min-height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--edge);
-}
-.close {
-  padding: 7px;
-  border-radius: 6px;
-}
-.settings {
-  padding: 10px 20px 16px;
-}
-.setting {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 0;
-  font-size: 15px;
-}
-.setting + .setting {
-  border-top: 1px solid #ffffff15;
-}
-.setting select {
-  background: #232a3c;
-  border: 1px solid #ffffff28;
-  border-radius: 7px;
-  padding: 6px 8px;
-  font-size: 14px;
-}
-.empty {
-  padding: 38px 18px 45px;
+.shortcut {
   display: grid;
   justify-items: center;
-  gap: 13px;
-  color: var(--muted);
-  font-size: 14px;
+  gap: 7px;
+  width: 96px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  color: #f4ead8;
+  font-size: 12.5px;
+  text-shadow: 0 1px 3px #000, 0 0 8px #000c;
+  transition: background-color .2s;
 }
-.empty p {
-  margin: 0;
+.shortcut .plaque { width: 50px; height: 50px }
+.shortcut .glyph { width: 28px; height: 28px }
+.shortcut:hover,.shortcut:focus-visible,.shortcut[aria-pressed=true] { background: #ffffff0f }
+.shortcut:is(:hover,:focus-visible,[aria-pressed=true]) .plaque {
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px #ffffff1f, inset 0 -2px 6px #000c, 0 0 0 1px #8fe05a40, 0 0 14px #8fe05a33, 0 4px 10px #000a;
 }
-.empty .tile {
-  width: 45px;
-  height: 45px;
+.shortcut:is(:hover,:focus-visible,[aria-pressed=true]) .glyph { filter: drop-shadow(0 0 2px #fff1d0) drop-shadow(0 0 7px #ffcf8a80) }
+.shortcut:focus-visible { outline: 1px solid #8fe05a80; outline-offset: 0 }
+
+/* Rooms: every app and profile section opens as its own scene in a window
+   that takes 70% of the space beside the dock, centred, with the desktop
+   showing around it. Each page sets --stage-bg / --stage-ink for its palette,
+   and sizes itself to the window (it is a size container named "stage"). */
+.window--stage {
+  --stage-bg: #050506;
+  --stage-ink: #f2ece2;
+  --bar-h: 34px;
+  --dock-w: 86px;
+  --area-w: calc(100vw - var(--dock-w));
+  --area-h: calc(100dvh - var(--bar-h));
+  inset: auto;
+  inset-block-start: calc(var(--bar-h) + var(--area-h) * .15);
+  inset-inline-start: calc(var(--dock-w) + var(--area-w) * .15);
+  width: calc(var(--area-w) * .7);
+  height: calc(var(--area-h) * .7);
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--stage-ink) 14%, transparent);
+  border-radius: 16px;
+  background: var(--stage-bg);
+  color: var(--stage-ink);
+  container: stage / size;
 }
-@media (max-width: 570px) {
-  .side {
-    gap: 9px;
-  }
-  .bar {
-    height: 46px;
-    padding: 0 12px;
-  }
-  .brand {
-    gap: 7px;
-    font-size: 14px;
-  }
-  .barbutton {
-    gap: 4px;
-    padding: 6px;
-  }
-  .dategroup {
-    gap: 7px;
-  }
-  .date {
-    display: none;
-  }
-  .dock-zone {
-    bottom: max(15px, env(safe-area-inset-bottom));
-  }
-  .dock {
-    border-radius: 18px;
-    padding: 7px 5px;
-    gap: 1px;
-  }
-  .dock button {
-    min-width: 0;
-    width: clamp(42px, 13.6vw, 60px);
-    padding: 2px 0;
-  }
-  .dock-rule {
-    margin: 0 3px;
-  }
-  .tile {
-    width: clamp(32px, 9vw, 42px);
-    height: clamp(32px, 9vw, 42px);
-  }
-  .caption {
-    font-size: 10px;
-  }
-  .launcher {
-    left: 12px;
-  }
+[data-theme] .window--stage {
+  box-shadow: 0 30px 90px #000d, 0 0 0 1px #000b;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
-@media (max-width: 360px) {
-  .side {
-    gap: 4px;
-  }
-  .logo {
-    width: 20px;
-  }
-  .bar {
-    padding: 0 8px;
-  }
-  .dategroup {
-    font-size: 12px;
-  }
+/* Maximized (title bar button or double-click): fill the space beside the dock. */
+.window--stage.is-max {
+  inset-block-start: var(--bar-h);
+  inset-inline-start: var(--dock-w);
+  width: var(--area-w);
+  height: var(--area-h);
+  border: 0;
+  border-radius: 0;
 }
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
+/* Too small for a 70% window: always fill the space, so there's nothing to maximize. */
+@media (max-width: 900px), (max-height: 600px) {
+  .window--stage {
+    inset-block-start: var(--bar-h);
+    inset-inline-start: var(--dock-w);
+    width: var(--area-w);
+    height: var(--area-h);
+    border: 0;
+    border-radius: 0;
   }
+  .window--stage .titlebar-max { display: none }
+}
+/* In a narrow window the profile tabs need the title's space. */
+@container stage (max-width: 760px) {
+  .stage--about h1, .stage--experience h1, .stage--skills h1, .stage--education h1, .stage--languages h1 { display: none }
+}
+/* Title bar */
+.window--stage .titlebar {
+  position: relative;
+  z-index: 20;
+  flex: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 7px 0 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--stage-ink) 13%, transparent);
+  background:
+    linear-gradient(#ffffff0e, #ffffff04),
+    color-mix(in srgb, var(--stage-bg) 78%, #000);
+  box-shadow: 0 1px 0 #0009, 0 6px 18px -8px #000c;
+  user-select: none;
+}
+.titlebar-title { display: flex; align-items: center; gap: 10px; min-width: 0 }
+.titlebar-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, #1d1915, #0a0807 70%);
+  box-shadow: inset 0 1px #ffffff14, inset 0 -2px 4px #000c, 0 0 0 1px #00000080;
+}
+.titlebar-icon .glyph { width: 17px; height: 17px; stroke-width: 1.7 }
+.window--stage h1 {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--stage-ink);
+  white-space: nowrap;
+}
+.titlebar-controls { grid-column: 3; justify-self: end; display: flex; gap: 2px }
+.titlebar-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  color: var(--stage-ink);
+  opacity: .78;
+  transition: background-color .15s, color .15s, opacity .15s;
+}
+.titlebar-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round }
+.titlebar-btn:hover { opacity: 1; background: color-mix(in srgb, var(--stage-ink) 12%, transparent) }
+.titlebar-btn.close:hover { background: #e5484d; color: #fff }
+.titlebar-btn:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: -2px }
+.profile-tabs {
+  grid-column: 2;
+  display: flex;
+  gap: 2px;
+  min-width: 0;
+  padding: 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stage-bg) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--stage-ink) 14%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.profile-tabs button {
+  flex: none;
+  padding: 5px 13px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  color: color-mix(in srgb, var(--stage-ink) 68%, transparent);
+  transition: background-color .2s, color .2s;
+}
+.profile-tabs button:hover { color: var(--stage-ink) }
+.profile-tabs button[aria-current] { background: var(--stage-ink); color: var(--stage-bg) }
+.stage-loading { flex: 1; display: grid; place-items: center }
+.stage-loading::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--stage-ink);
+  animation: stage-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes stage-pulse { from { opacity: .2; transform: scale(.7) } }
+/* A page fills the room; it scrolls itself if it needs to. Its content fades in
+   as the window finishes opening (and when switching profile tabs). */
+.page { position: relative; flex: 1; min-height: 0; overflow: hidden; animation: page-in .35s ease-out .08s backwards }
+@keyframes page-in { from { opacity: 0 } }
+.stage--Mangas { --stage-bg: #040307; --stage-ink: #ece4ff }
+@media(prefers-reduced-motion:reduce) { .page, .stage-loading::after { animation: none } }
+
+/* Arabic is a joined script: letter-spacing would pull its letters apart. */
+.desktop:lang(ar), .desktop:lang(ar) * { letter-spacing: normal !important }
+
+@media(max-width:570px) {
+ .window--stage { --bar-h: 32px; --dock-w: 66px }
+ .window--stage .titlebar { height: 40px; padding: 0 4px 0 8px; gap: 6px }
+ .profile-tabs button { padding: 6px 10px; font-size: 11.5px }
+ .shortcuts { top: 44px; inset-inline-end: 6px; gap: 2px }
+ .shortcut { width: 76px; font-size: 11px; padding: 6px 2px }
+ .shortcut .plaque { width: 40px; height: 40px }
+ .shortcut .glyph { width: 23px; height: 23px }
+ .dock { inset-block-start: 32px; width: 66px; padding: 8px 3px }
+ .bar { height: 32px }
+ .plaque { width: 38px; height: 38px }
+ .glyph { width: 23px; height: 23px }
+ .dock button { font-size: 10.5px; height: 80px }
+ .dock { padding-inline: 3px }
+ .dategroup { gap: 7px; font-size: 13px }
+ .owner-name { left: 7px; max-width: calc(50% - 76px); font-size: 11px }
+ .time { padding-inline-start: 7px }
+ .settings-toggle { right: 3px; height: 26px; gap: 5px; padding: 0 5px }
+ .preferences { top: 38px; width: calc(100vw - 78px) }
+ .window { top: calc(50% + 16px); left: calc(50% + 33px); width: calc(100vw - 80px) }
+}
+@media(max-width:380px) {
+ .dategroup { font-size: 11px }
+ .dategroup .date { max-width: 54px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+ .owner-name { max-width: 62px }
+}
+@media(prefers-reduced-motion:reduce) {
+ .dock * { transition: none !important; animation: none !important }
+ .window,.preferences { animation: none }
 }
 
-.launcher {
-  z-index: 5;
-}
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }

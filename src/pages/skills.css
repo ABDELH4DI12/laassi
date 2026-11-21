@@ -1,0 +1,107 @@
+/* Skills: a star chart. Groups are constellations; brighter stars are stronger skills. */
+.stage--skills { --stage-bg: #030615; --stage-ink: #e3eaff }
+.sky { background: radial-gradient(120% 70% at 50% 0%, #142554, #070d26 45%, #030615 80%) }
+.sky::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 32%, #7a8cff12 44%, #b9a0ff17 50%, #7a8cff10 56%, transparent 68%);
+  filter: blur(24px);
+}
+.sky-field { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none }
+.sky-scroll { position: absolute; inset: 0; overflow-x: hidden; overflow-y: auto }
+.sky-chart { display: block; overflow: visible; transform: translate(var(--px, 0), var(--py, 0)) }
+.constellation { transition: opacity .35s }
+.constellation.is-dim { opacity: .3 }
+.constellation line {
+  stroke: #8fb0ff;
+  stroke-opacity: .38;
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: sky-draw 1.2s ease-out calc(.5s + var(--d) * 1s) forwards;
+  transition: stroke-opacity .3s;
+}
+.constellation.is-lit line { stroke-opacity: .85; stroke: #c4d5ff }
+@keyframes sky-draw { to { stroke-dashoffset: 0 } }
+.star { cursor: pointer; animation: star-in .7s ease-out calc(.2s + var(--d) * 1s) backwards }
+@keyframes star-in { from { opacity: 0 } }
+.star-hit { fill: transparent }
+.star-halo { transform-box: fill-box; transform-origin: center; animation: twinkle var(--tw) ease-in-out infinite alternate; transition: transform .3s }
+@keyframes twinkle { from { opacity: .5; transform: scale(.82) } to { opacity: 1; transform: scale(1.06) } }
+.star-flare { stroke: #dfe8ff; stroke-width: .8; stroke-opacity: .45; stroke-linecap: round }
+/* The orb: a small dark sphere ringed in starlight, holding the technology's icon. */
+.star-orb {
+  stroke: #c4d5ff;
+  stroke-opacity: calc(.3 + var(--lvl) * .1);
+  stroke-width: 1.1;
+  filter: drop-shadow(0 0 calc(var(--lvl) * 1.6px) #9fbaff);
+  transition: stroke .3s, stroke-opacity .3s;
+}
+/* Icons are drawn in pale starlight; hovering a star brings up the brand's colour. */
+.star-icon, .star-spark {
+  fill: #eef3ff;
+  fill-opacity: calc(.62 + var(--lvl) * .076);
+  filter: drop-shadow(0 0 2px #cfe0ff);
+  pointer-events: none;
+  transition: fill .3s, fill-opacity .3s, filter .3s;
+}
+.star-brand { fill: var(--brand); opacity: 0; filter: blur(8px); transition: opacity .35s; pointer-events: none }
+.star.is-hover .star-halo { animation: none; transform: scale(1.4) }
+.star.is-hover .star-brand { opacity: .45 }
+.star.is-hover .star-orb { stroke: var(--brand); stroke-opacity: .95 }
+.star.is-hover :is(.star-icon, .star-spark) { fill: var(--brand); fill-opacity: 1; filter: drop-shadow(0 0 4px var(--brand)) }
+.star-name {
+  font: 500 12px/1 var(--font-sans);
+  fill: #b7c6ec;
+  fill-opacity: .82;
+  paint-order: stroke;
+  stroke: #050a1c;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  transition: fill-opacity .3s;
+}
+.star.is-hover .star-name { fill: #fff; fill-opacity: 1 }
+.constellation-name { font: 600 11px/1 var(--font-sans); letter-spacing: .32em; text-transform: uppercase; fill: #7f95cc }
+.constellation.is-lit .constellation-name { fill: #c4d5ff }
+.sky-tip {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #8fb0ff40;
+  border-radius: 10px;
+  background: #0a122dd9;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px #0009;
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(calc(-50% + var(--px, 0px)), calc(-100% - var(--r, 14px) - 14px + var(--py, 0px)));
+}
+.sky-level { display: flex; gap: 4px }
+.sky-level i { width: 6px; height: 6px; border-radius: 50%; background: #ffffff26 }
+.sky-level i.on { background: var(--brand, #dfe8ff); box-shadow: 0 0 6px var(--brand, #9fbaff) }
+.sky-legend {
+  position: absolute;
+  bottom: 20px;
+  inset-inline-start: 24px;
+  display: grid;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #7f95cc;
+  pointer-events: none;
+}
+.sky-scale { display: flex; align-items: center; justify-content: space-between; gap: 14px }
+.sky-scale i { width: calc(2px + var(--s) * 2px); height: calc(2px + var(--s) * 2px); border-radius: 50%; background: #eef3ff; box-shadow: 0 0 calc(var(--s) * 3px) #9fbaff }
+.sky-ends { display: flex; justify-content: space-between; gap: 20px; text-transform: none; letter-spacing: .04em }
+@container stage (max-width: 600px) { .sky-legend { display: none } }
+@media (prefers-reduced-motion: reduce) {
+  .constellation line, .star, .star-halo { animation: none; stroke-dashoffset: 0 }
+}
