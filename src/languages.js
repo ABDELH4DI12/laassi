@@ -16,7 +16,7 @@ export const translations = {
           pos: "Point of Sale", manufacturing: "Manufacturing", project: "Project", tools: "Tools" },
       },
       featured: "Featured", includes: "What’s inside", storeIntro: "Addons and tools I’ve made. Pick one to see what it does.",
-      film: "Film", series: "Series", mangaShelf: "Manga shelf",
+      prevFilm: "Previous film", nextFilm: "Next film", valanceLine: "A Private Selection of Timeless Cinema", volumes: "volumes", mangaStatus: { ongoing: "Ongoing", hiatus: "On hiatus", complete: "Complete" }, aboutEyebrow: "About me", statYears: "Years building", statCompanies: "Companies", statSkills: "Skills", topSkills: "Top skills", seeWork: "See my work", expHeadline: "Where I’ve been building", expPresent: "Present", yr: "yr", mo: "mo", expTotal: "of experience", skillsHeadline: "The tools I build with", skillsTotal: "skills", lvl: ["Learning", "Basics", "Comfortable", "Strong", "Expert"], highlights: "Highlights", techUsed: "Tech used", eduHeadline: "Where I learned to build", eduLearned: "What I learned", eduNext: "Then I started building", seeExperience: "See my experience", langHeadline: "Three languages, one voice", langSub: "I work comfortably in all three.", film: "Film", series: "Series", mangaShelf: "Manga shelf",
       chalk: { white: "White chalk", yellow: "Yellow chalk", pink: "Pink chalk", blue: "Blue chalk" },
       term: {
         welcome: ["Welcome to After Hours. Type ", " to see the available commands."],
@@ -59,7 +59,7 @@ export const translations = {
           pos: "Point de vente", manufacturing: "Fabrication", project: "Projet", tools: "Outils" },
       },
       featured: "À la une", includes: "Ce qu’il contient", storeIntro: "Les modules et outils que j’ai créés. Choisissez-en un pour voir ce qu’il fait.",
-      film: "Film", series: "Série", mangaShelf: "Étagère à mangas",
+      prevFilm: "Film précédent", nextFilm: "Film suivant", valanceLine: "Une sélection privée du cinéma intemporel", volumes: "tomes", mangaStatus: { ongoing: "En cours", hiatus: "En pause", complete: "Terminé" }, aboutEyebrow: "À propos", statYears: "Années d’expérience", statCompanies: "Entreprises", statSkills: "Compétences", topSkills: "Compétences clés", seeWork: "Voir mes projets", expHeadline: "Là où j’ai construit", expPresent: "Actuel", yr: "an", mo: "mois", expTotal: "d’expérience", skillsHeadline: "Les outils avec lesquels je construis", skillsTotal: "compétences", lvl: ["Apprentissage", "Bases", "À l’aise", "Solide", "Expert"], highlights: "Points clés", techUsed: "Technologies", eduHeadline: "Là où j’ai appris à construire", eduLearned: "Ce que j’ai appris", eduNext: "Puis j’ai commencé à construire", seeExperience: "Voir mon expérience", langHeadline: "Trois langues, une seule voix", langSub: "Je travaille aisément dans les trois.", film: "Film", series: "Série", mangaShelf: "Étagère à mangas",
       chalk: { white: "Craie blanche", yellow: "Craie jaune", pink: "Craie rose", blue: "Craie bleue" },
       term: {
         welcome: ["Bienvenue sur After Hours. Tapez ", " pour voir les commandes disponibles."],
@@ -102,7 +102,7 @@ export const translations = {
           pos: "نقاط البيع", manufacturing: "التصنيع", project: "المشاريع", tools: "أدوات" },
       },
       featured: "مميّز", includes: "ما يتضمّنه", storeIntro: "إضافات وأدوات صنعتها. اختر واحدة لترى ما تقدّمه.",
-      film: "فيلم", series: "مسلسل", mangaShelf: "رفّ المانغا",
+      prevFilm: "الفيلم السابق", nextFilm: "الفيلم التالي", valanceLine: "مختارات خاصة من روائع السينما الخالدة", volumes: "مجلدًا", mangaStatus: { ongoing: "مستمر", hiatus: "متوقف مؤقتًا", complete: "مكتمل" }, aboutEyebrow: "نبذة عني", statYears: "سنوات من الخبرة", statCompanies: "شركات", statSkills: "مهارات", topSkills: "أبرز المهارات", seeWork: "شاهد أعمالي", expHeadline: "حيث كنت أبني", expPresent: "حاليًا", yr: "سنة", mo: "شهر", expTotal: "من الخبرة", skillsHeadline: "الأدوات التي أبني بها", skillsTotal: "مهارة", lvl: ["أتعلّم", "أساسيات", "مرتاح", "قوي", "خبير"], highlights: "أبرز المهام", techUsed: "التقنيات", eduHeadline: "حيث تعلّمت البناء", eduLearned: "ما تعلّمته", eduNext: "ثم بدأت البناء", seeExperience: "شاهد خبرتي", langHeadline: "ثلاث لغات، صوت واحد", langSub: "أعمل بارتياح بالثلاث.", film: "فيلم", series: "مسلسل", mangaShelf: "رفّ المانغا",
       chalk: { white: "طبشور أبيض", yellow: "طبشور أصفر", pink: "طبشور وردي", blue: "طبشور أزرق" },
       term: {
         welcome: ["مرحبًا بك في After Hours. اكتب ", " لعرض الأوامر المتاحة."],

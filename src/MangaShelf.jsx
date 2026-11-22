@@ -7,13 +7,45 @@ import berserk from "./assets/mangas/berserk.jpg";
 import climber from "./assets/mangas/the-climber.jpg";
 import monster from "./assets/mangas/monster.jpg";
 
-// Titles and authors per language: { en, fr, ar } (missing languages fall back to English).
+// Each manga: title and author, when it started, its volumes (when it's finished or
+// paused) or "ongoing", genres, and a one-line pitch. Text can be { en, fr, ar }.
+const G = {
+  historical: { en: "Historical", fr: "Historique", ar: "تاريخي" },
+  war: { en: "War", fr: "Guerre", ar: "حرب" },
+  samurai: { en: "Samurai", fr: "Samouraï", ar: "ساموراي" },
+  darkFantasy: { en: "Dark fantasy", fr: "Dark fantasy", ar: "فانتازيا مظلمة" },
+  action: { en: "Action", fr: "Action", ar: "أكشن" },
+  drama: { en: "Drama", fr: "Drame", ar: "دراما" },
+  mountaineering: { en: "Mountaineering", fr: "Alpinisme", ar: "تسلّق الجبال" },
+  thriller: { en: "Thriller", fr: "Thriller", ar: "إثارة" },
+  mystery: { en: "Mystery", fr: "Mystère", ar: "غموض" },
+};
 export const mangas = [
-  { title: { en: "Kingdom", ar: "كينغدم" }, author: { en: "Yasuhisa Hara", ar: "ياسوهيسا هارا" }, cover: kingdom },
-  { title: { en: "Vagabond", ar: "فاغابوند" }, author: { en: "Takehiko Inoue", ar: "تاكيهيكو إينوي" }, cover: vagabond },
-  { title: { en: "Berserk", ar: "بيرسيرك" }, author: { en: "Kentaro Miura", ar: "كينتارو ميورا" }, cover: berserk },
-  { title: { en: "The Climber", fr: "Ascension", ar: "المتسلّق" }, author: { en: "Shin'ichi Sakamoto", ar: "شينئيتشي ساكاموتو" }, cover: climber },
-  { title: { en: "Monster", ar: "مونستر" }, author: { en: "Naoki Urasawa", ar: "ناوكي أوراساوا" }, cover: monster },
+  { title: { en: "Kingdom", ar: "كينغدم" }, author: { en: "Yasuhisa Hara", ar: "ياسوهيسا هارا" }, cover: kingdom,
+    year: "2006", status: "ongoing", genres: [G.historical, G.war],
+    pitch: { en: "A war orphan's dream of becoming the greatest general under the heavens, in China's Warring States era.",
+      fr: "Le rêve d’un orphelin de guerre : devenir le plus grand général sous le ciel, à l’époque des Royaumes combattants.",
+      ar: "حلم يتيم حرب بأن يصبح أعظم جنرال تحت السماء، في عصر الممالك المتحاربة في الصين." } },
+  { title: { en: "Vagabond", ar: "فاغابوند" }, author: { en: "Takehiko Inoue", ar: "تاكيهيكو إينوي" }, cover: vagabond,
+    year: "1998", volumes: 37, status: "hiatus", genres: [G.samurai, G.historical],
+    pitch: { en: "The life of Miyamoto Musashi, from reckless swordsman to a man searching for what strength really means.",
+      fr: "La vie de Miyamoto Musashi, du sabreur téméraire à l’homme qui cherche le vrai sens de la force.",
+      ar: "حياة مياموتو موساشي، من مبارز متهوّر إلى رجل يبحث عن المعنى الحقيقي للقوة." } },
+  { title: { en: "Berserk", ar: "بيرسيرك" }, author: { en: "Kentaro Miura", ar: "كينتارو ميورا" }, cover: berserk,
+    year: "1989", status: "ongoing", genres: [G.darkFantasy, G.action],
+    pitch: { en: "Guts, the Black Swordsman, against a fate written in blood by the friend who betrayed him.",
+      fr: "Guts, le Guerrier noir, face à un destin écrit dans le sang par l’ami qui l’a trahi.",
+      ar: "غاتس، المبارز الأسود، في مواجهة قدر كتبه بالدم الصديقُ الذي خانه." } },
+  { title: { en: "The Climber", fr: "Ascension", ar: "المتسلّق" }, author: { en: "Shin'ichi Sakamoto", ar: "شينئيتشي ساكاموتو" }, cover: climber,
+    year: "2007", volumes: 17, status: "complete", genres: [G.mountaineering, G.drama],
+    pitch: { en: "A lonely teenager finds himself on the rock face, and climbs towards the summits no one has reached.",
+      fr: "Un adolescent solitaire se trouve sur la paroi, et grimpe vers des sommets que personne n’a atteints.",
+      ar: "مراهق وحيد يجد نفسه على الجدار الصخري، ويتسلّق نحو قمم لم يبلغها أحد." } },
+  { title: { en: "Monster", ar: "مونستر" }, author: { en: "Naoki Urasawa", ar: "ناوكي أوراساوا" }, cover: monster,
+    year: "1994", volumes: 18, status: "complete", genres: [G.thriller, G.mystery],
+    pitch: { en: "A surgeon saves a boy's life, and spends years hunting the monster that boy became.",
+      fr: "Un chirurgien sauve la vie d’un garçon, puis passe des années à traquer le monstre qu’il est devenu.",
+      ar: "جرّاح ينقذ حياة صبي، ثم يقضي سنوات في مطاردة الوحش الذي صار إليه ذلك الصبي." } },
 ];
 
 // The ring repeats the list so it always looks full; turning it never ends.
@@ -194,6 +226,7 @@ export default function MangaShelf({ t, language }) {
   return <div className="manga-shelf">
     <div className="manga-stage" ref={stage} tabIndex={0} role="listbox"
       aria-label={t.ui.mangaShelf} aria-activedescendant={"manga-" + current}>
+      <div className="manga-glow" key={current} style={{ backgroundImage: `url(${manga.cover})` }} aria-hidden="true" />
       <div className="manga-room" aria-hidden="true">
         <div className="manga-ceiling" />
         <div className="manga-beam" />
@@ -222,9 +255,15 @@ export default function MangaShelf({ t, language }) {
       </div>
     </div>
     <div className="manga-hud">
-      <div className="manga-caption" aria-live="polite">
+      <div className="manga-caption" aria-live="polite" key={current + language}>
         <strong>{title(manga)}</strong>
-        <span>{tx(manga.author, language)}</span>
+        <span className="manga-meta">
+          {tx(manga.author, language)}<i>·</i>{manga.year}<i>·</i>
+          {manga.volumes ? `${manga.volumes} ${t.ui.volumes}` : ""}{manga.volumes && manga.status !== "complete" ? " · " : ""}
+          {manga.status !== "complete" ? t.ui.mangaStatus[manga.status] : ""}
+        </span>
+        <span className="manga-genres">{manga.genres.map((g, i) => <em key={i}>{tx(g, language)}</em>)}</span>
+        <p className="manga-pitch">{tx(manga.pitch, language)}</p>
       </div>
       <div className="manga-counter">
         <span aria-hidden="true">{String(current + 1).padStart(2, "0")}</span>

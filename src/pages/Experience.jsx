@@ -1,175 +1,107 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import "@fontsource/bebas-neue";
+import React, { useEffect, useRef, useState } from "react";
+import "./grove.css";
 import "./experience.css";
 import { profile } from "../content/profile";
-import { tx, hasArabic } from "../content/i18n";
-import { reducedMotion } from "./art";
+import { tx } from "../content/i18n";
+import { techIcon, brightBrand } from "./techIcons";
+import { LEAF } from "../Vine";
+import { Fireflies, useFitScale } from "./Fireflies";
+import { IvyBorder } from "./IvyBorder";
 
-const W = 1200, H = 400;
-const FLAPS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.&";
+// Experience: the career as a glowing vine on the left (newest at the top, the
+// current job pulsing); the chosen job opens on the right in an ivy-framed card.
 
-// Departure-board text that clatters through letters before settling.
-function SplitFlap({ text, size }) {
-  const target = text.toUpperCase().padEnd(size).slice(0, size);
-  const [shown, setShown] = useState(target);
-  useEffect(() => {
-    if (reducedMotion()) { setShown(target); return; }
-    const left = [...target].map((_, i) => 3 + (i % 6) + Math.floor(Math.random() * 4));
-    const timer = setInterval(() => {
-      let busy = false;
-      setShown([...target].map((ch, i) => {
-        if (left[i] <= 0) return ch;
-        left[i]--; busy = true;
-        return FLAPS[Math.floor(Math.random() * FLAPS.length)];
-      }).join(""));
-      if (!busy) clearInterval(timer);
-    }, 55);
-    return () => clearInterval(timer);
-  }, [target]);
-  return <span className="flap-row" aria-label={text}>
-    {[...shown].map((ch, i) => <span key={i} className="flap" aria-hidden="true"><span key={ch}>{ch}</span></span>)}
-  </span>;
-}
-
-// Arabic letters join up, so they can't sit one per flap: the whole line is one
-// panel that flips over when it changes.
-function FlapStrip({ text }) {
-  return <span className="flap-strip" dir="rtl"><span key={text}>{text}</span></span>;
-}
-
-const Flap = ({ text, size }) => (hasArabic(text) ? <FlapStrip text={text} /> : <SplitFlap text={text} size={size} />);
+const months = (start, end) => {
+  if (!start) return 0;
+  const [y1, m1] = start.split("-").map(Number);
+  const now = new Date();
+  const [y2, m2] = end ? end.split("-").map(Number) : [now.getFullYear(), now.getMonth() + 1];
+  return (y2 - y1) * 12 + (m2 - m1) + 1;
+};
+const duration = (n, t) => {
+  const y = Math.floor(n / 12), m = n % 12;
+  return [y && `${y} ${t.ui.yr}`, m && `${m} ${t.ui.mo}`].filter(Boolean).join(" ");
+};
 
 export default function Experience({ t, language }) {
-  const rtl = language === "ar";
-  // Oldest job first along the line, then the open "next stop".
-  const jobs = useMemo(() => [...profile.experience].reverse().map((job) => ({
-    ...job,
-    role: tx(job.role, language), place: tx(job.place, language),
-    period: tx(job.period, language), text: tx(job.text, language),
-  })), [language]);
-  const stops = useMemo(() => [...jobs, { next: true, role: t.ui.nextStopTitle, place: "—", period: "—", text: t.ui.nextStopText }], [jobs, t]);
+  const jobs = profile.experience;
+  const [sel, setSel] = useState(Math.max(0, jobs.findIndex((j) => j.current)));
+  const job = jobs[sel];
+  const total = jobs.reduce((n, j) => n + months(j.start, j.end), 0);
+  const companies = new Set(jobs.map((j) => tx(j.place, "en"))).size;
+  const highlights = [].concat(tx(job.highlights, language) || tx(job.text, language) || []);
+  const frame = useRef(null), fit = useRef(null);
+  useFitScale(frame, fit);
 
-  // Lay the line out metro-style: horizontal runs joined by 45° diagonals.
-  const { points, stations, total, solid } = useMemo(() => {
-    const n = stops.length;
-    const xs = stops.map((_, i) => 110 + (i * (W - 220)) / Math.max(1, n - 1));
-    const ys = stops.map((_, i) => (i % 2 ? 268 : 140));
-    const pts = [[xs[0], ys[0]]];
-    const at = [0];
-    let len = 0;
-    for (let i = 1; i < n; i++) {
-      const [px, py] = [xs[i - 1], ys[i - 1]];
-      const dx = xs[i] - px, dy = ys[i] - py, diag = Math.abs(dy);
-      const flat = Math.max(0, (dx - diag) / 2);
-      pts.push([px + flat, py], [px + flat + diag, ys[i]], [xs[i], ys[i]]);
-      len += flat * 2 + diag * Math.SQRT2;
-      at.push(len);
-    }
-    return {
-      points: pts,
-      stations: stops.map((s, i) => ({ ...s, x: xs[i], y: ys[i], at: at[i] })),
-      total: len,
-      solid: pts.slice(0, 1 + Math.max(0, n - 2) * 3), // up to the last real job; the rest is dashed
-    };
-  }, [stops]);
-
-  // Start on the current job (or the latest one); the train drives there from the first station.
-  const currentIndex = jobs.findIndex((j) => j.current);
-  const [selected, setSelected] = useState(currentIndex >= 0 ? currentIndex : Math.max(0, jobs.length - 1));
-  const path = useRef(null);
-  const train = useRef(null);
-  const travel = useRef({ s: 0, target: 0 });
-
-  // Drive the train along the line to the selected station.
   useEffect(() => {
-    const state = travel.current;
-    // Pull in just beside the platform so the station marker doesn't hide the train.
-    const at = stations[selected].at;
-    state.target = at > 34 ? at - 34 : at + 34;
-    const from = state.s, to = state.target;
-    const duration = reducedMotion() ? 0 : Math.min(2200, 500 + Math.abs(to - from) * 2.2);
-    const start = performance.now();
-    let frame = 0;
-    const place = () => {
-      const el = path.current, car = train.current;
-      if (!el || !car) return;
-      const p = el.getPointAtLength(state.s);
-      const q = el.getPointAtLength(Math.min(total, state.s + 1));
-      const r = el.getPointAtLength(Math.max(0, state.s - 1));
-      const angle = (Math.atan2(q.y - r.y, q.x - r.x) * 180) / Math.PI;
-      car.setAttribute("transform", `translate(${p.x} ${p.y}) rotate(${angle})`);
-    };
-    const step = (now) => {
-      const k = duration ? Math.min(1, (now - start) / duration) : 1;
-      const ease = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-      state.s = from + (to - from) * ease;
-      place();
-      if (k < 1) frame = requestAnimationFrame(step);
-    };
-    frame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame);
-  }, [selected, stations, total]);
-
-  // ← → move along the line (mirrored in Arabic, where the line runs right to left).
-  useEffect(() => {
-    const key = (event) => {
-      const forward = rtl ? "ArrowLeft" : "ArrowRight", back = rtl ? "ArrowRight" : "ArrowLeft";
-      if (event.key === forward) setSelected((i) => Math.min(stations.length - 1, i + 1));
-      if (event.key === back) setSelected((i) => Math.max(0, i - 1));
+    const key = (e) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); setSel((i) => Math.min(jobs.length - 1, i + 1)); }
+      if (e.key === "ArrowUp") { e.preventDefault(); setSel((i) => Math.max(0, i - 1)); }
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [stations.length, rtl]);
+  }, [jobs.length]);
 
-  const stop = stations[selected];
-  const line = (pts) => pts.map((p) => p.join(",")).join(" ");
-  const size = Math.max(16, ...stops.map((s) => s.role.length));
-  const left = (x) => ((rtl ? W - x : x) / W) * 100 + "%";
+  return <div className="page grove xp">
+    <Fireflies count={12} />
+    <div className="xp-frame" ref={frame}><div className="xp-layout g-fit" ref={fit}>
+      <aside className="xp-side">
+        <header className="g-head">
+          <span className="g-eyebrow">{t.sections.experience}</span>
+          <h2 className="g-title">{t.ui.expHeadline}</h2>
+          <p className="g-sub"><b>{duration(total, t)}</b> {t.ui.expTotal} · <b>{companies}</b> {t.ui.statCompanies.toLowerCase()}</p>
+        </header>
+        <ol className="xp-path">
+          {jobs.map((j, i) => <li key={i} style={{ "--i": i }}>
+            <button className={"xp-stop" + (i === sel ? " is-on" : "") + (j.current ? " is-current" : "")}
+              aria-pressed={i === sel} onClick={() => setSel(i)}>
+              <span className="xp-node" aria-hidden="true">
+                <svg viewBox="-10 -10 20 20">
+                  <path d={LEAF} transform="translate(-1.5 1) rotate(-140) scale(1.5)" />
+                  <path d={LEAF} transform="translate(1.5 1) rotate(-40) scale(1.5)" />
+                  <circle r="3.6" />
+                </svg>
+              </span>
+              <span className="xp-stop-when">{tx(j.period, language)}</span>
+              <span className="xp-stop-role">{tx(j.role, language)}</span>
+              <span className="xp-stop-place">{tx(j.place, language)}</span>
+            </button>
+          </li>)}
+        </ol>
+      </aside>
 
-  return <div className="page metro">
-    <div className="metro-badge" aria-hidden="true"><b>L1</b><span>{t.ui.careerLine}</span></div>
-
-    <div className="metro-map">
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <g transform={rtl ? `translate(${W} 0) scale(-1 1)` : undefined}>
-          <path className="metro-river" d="M-20 360 C 200 300, 330 390, 520 330 S 860 250, 1000 300 S 1180 380, 1240 330" />
-          <polyline className="metro-line-glow" points={line(solid)} />
-          <polyline className="metro-line" points={line(solid)} />
-          <polyline className="metro-line metro-line--future" points={line(points.slice(solid.length - 1))} />
-          <polyline ref={path} points={line(points)} fill="none" stroke="none" />
-          <g ref={train} className="metro-train">
-            <rect x="-22" y="-8" width="44" height="16" rx="8" />
-            <rect className="metro-window" x="-14" y="-4" width="7" height="6" rx="1.5" />
-            <rect className="metro-window" x="-4" y="-4" width="7" height="6" rx="1.5" />
-            <rect className="metro-window" x="6" y="-4" width="7" height="6" rx="1.5" />
-            <circle className="metro-lamp" cx="20" cy="0" r="2.4" />
-          </g>
-        </g>
-      </svg>
-      {stations.map((s, i) => <button key={i}
-        className={"station" + (s.next ? " station--next" : "") + (s.current ? " station--current" : "") + (i === selected ? " is-selected" : "") + (s.y < 200 ? " station--up" : "")}
-        style={{ left: left(s.x), top: (s.y / H) * 100 + "%", "--d": i }}
-        onClick={() => setSelected(i)} aria-pressed={i === selected}>
-        <span className="station-dot" aria-hidden="true" />
-        <span className="station-label">
-          <strong>{s.role}</strong>
-          <small>{s.next ? t.ui.nextStop : `${s.place} · ${s.period}`}</small>
-          {s.current && <em>{t.ui.hereNow}</em>}
+      <section className="xp-detail g-card" key={sel + language} aria-live="polite">
+        <span className="xp-ivy" aria-hidden="true">
+          <IvyBorder seed={11 + sel * 7} inset={8} radius={18} band={0.8}
+            strands={[{ at: 0.9, length: 0.14, dir: 1 }, { at: 0.47, length: 0.12, dir: 1 }]} />
         </span>
-      </button>)}
-    </div>
-
-    <section className="board" aria-live="polite">
-      <header className="board-head">
-        <span>{t.ui.departures}</span>
-        <span className="board-no">{String(selected + 1).padStart(2, "0")} / {String(stations.length).padStart(2, "0")}</span>
-      </header>
-      <dl className="board-rows">
-        <div><dt>{t.ui.destination}</dt><dd><Flap text={stop.role} size={size} /></dd></div>
-        <div><dt>{t.ui.operator}</dt><dd><Flap text={stop.place} size={Math.max(14, ...stops.map((s) => s.place.length))} /></dd></div>
-        <div><dt>{t.ui.service}</dt><dd><Flap text={stop.period} size={14} /></dd></div>
-      </dl>
-      <p className="board-note" key={selected + language}>{stop.text}</p>
-    </section>
+        <span className="xp-year" aria-hidden="true">{(job.start || "").slice(0, 4)}</span>
+        <div className="xp-top">
+          <span className="xp-mono" aria-hidden="true">{tx(job.place, "en").slice(0, 1)}</span>
+          <div className="xp-title">
+            <h3>{tx(job.role, language)}</h3>
+            <p>{tx(job.place, language)}{job.type && <><i>·</i>{tx(job.type, language)}</>}</p>
+          </div>
+        </div>
+        <div className="xp-meta">
+          {job.current && <span className="xp-badge"><i aria-hidden="true" />{t.ui.expPresent}</span>}
+          <span className="xp-pill">{tx(job.period, language)}</span>
+          {job.start && <span className="xp-pill">{duration(months(job.start, job.end), t)}</span>}
+        </div>
+        <h4 className="xp-label">{t.ui.highlights}</h4>
+        <ul className="xp-points">{highlights.map((h, i) => <li key={i} style={{ "--i": i }}>{h}</li>)}</ul>
+        {job.tech?.length > 0 && <>
+          <h4 className="xp-label">{t.ui.techUsed}</h4>
+          <ul className="xp-tech">
+            {job.tech.map((s, i) => {
+              const icon = techIcon(s);
+              return <li key={s} style={{ "--i": i, "--brand": icon ? brightBrand(icon.hex) : "#c8f59a" }}>
+                {icon ? <svg viewBox="0 0 24 24"><path d={icon.path} /></svg> : <b>{s.slice(0, 3)}</b>}{s}
+              </li>;
+            })}
+          </ul>
+        </>}
+      </section>
+    </div></div>
   </div>;
 }

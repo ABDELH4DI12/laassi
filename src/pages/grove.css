@@ -1,0 +1,33 @@
+/* The grove: shared look for the profile pages (Experience, Skills, Education,
+   Languages) — the same night forest as About me, lit by the ivy's green glow. */
+.stage--experience, .stage--skills, .stage--education, .stage--languages { --stage-bg: #070b08; --stage-ink: #eef3e8 }
+.grove {
+  --leaf: #9fe36a;
+  --glow: #e4ffb8;
+  --bloom: #8fe05a;
+  --muted: #93a88b;
+  --line: #c9ff9a1f;
+  background:
+    radial-gradient(55% 55% at 12% 0%, #14301e, transparent 70%),
+    radial-gradient(45% 55% at 100% 100%, #102016, transparent 70%),
+    #070b08;
+  color: #eef3e8;
+  isolation: isolate;
+}
+.g-flies { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none }
+.g-head { position: relative; z-index: 1; animation: g-rise .8s cubic-bezier(.16,1,.3,1) both }
+.g-eyebrow { font-size: 11.5px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: var(--leaf) }
+.g-title { margin: 6px 0 4px; font: 600 clamp(22px, 2.8cqw, 36px)/1.18 var(--font-display); letter-spacing: -.01em; color: #fbfdf7 }
+.g-sub { margin: 0; font-size: 14px; color: var(--muted) }
+.g-sub b { color: #e3f5d4; font-weight: 600 }
+.g-card {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(165deg, #0f2a1ac2, #081a10d6);
+  box-shadow: 0 24px 50px -28px #000, inset 0 1px #ffffff0a;
+}
+.g-fit { transform: scale(var(--k, 1)); transform-origin: center }
+@keyframes g-rise { from { opacity: 0; transform: translateY(16px) } }
+@keyframes g-pop { from { opacity: 0; transform: scale(.6) } }
+@keyframes g-draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+@media (prefers-reduced-motion: reduce) { .g-head { animation: none } }

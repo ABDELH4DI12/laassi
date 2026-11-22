@@ -1,175 +1,80 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import "@fontsource/fraunces/600.css";
-import "@fontsource/fraunces/400-italic.css";
 import "./about.css";
 import { profile } from "../content/profile";
-import { tx, hasArabic } from "../content/i18n";
-import { reducedMotion } from "./art";
+import { tx } from "../content/i18n";
+import { TechIcon } from "./techIcons";
+import { IvyBorder } from "./IvyBorder";
 
-const RADIUS = 260;   // how far the lamp light reaches over the letters (px)
-const PUSH = 26;      // how far a letter shies away from the light (px)
+const LinkedInMark = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" /></svg>;
+const Arrow = () => <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>;
+const Pin = () => <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 14.5s4.5-4.2 4.5-7.7a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.7 4.5 7.7z" /><circle cx="8" cy="6.8" r="1.6" /></svg>;
 
-export default function About({ t, language }) {
-  const page = useRef(null);
-  const dust = useRef(null);
-  const letters = useRef([]);
-  const name = tx(profile.name, language), role = tx(profile.role, language), about = tx(profile.about, language);
-  // A Latin name lights up letter by letter. Arabic letters must stay joined, so an
-  // Arabic name lights up word by word.
-  const arabicName = hasArabic(name);
-  const parts = arabicName ? name.split(/\s+/).filter(Boolean) : [...name];
-  const [typed, setTyped] = useState(reducedMotion() ? role : "");
+// About: an editorial profile card. Portrait on one side; a statement, the story,
+// a few numbers, top skills and links on the other.
+export default function About({ t, language, onOpen }) {
+  const name = tx(profile.name, language);
+  const years = Math.max(1, new Date().getFullYear() - (profile.since || new Date().getFullYear()));
+  const companies = new Set(profile.experience.map((e) => tx(e.place, "en"))).size;
+  const skills = profile.skills.reduce((n, g) => n + g.items.length, 0);
+  const stats = [[years + "+", t.ui.statYears], [companies, t.ui.statCompanies], [skills, t.ui.statSkills]];
 
-  // The light: follows the pointer, drifts on its own when idle. Letters near it
-  // fill with light and lean away from it.
+  // The card is designed for the normal window; in a bigger (maximized) window it
+  // scales up as one piece so it fills the space instead of floating in it.
+  const scroll = useRef(null), grid = useRef(null);
   useEffect(() => {
-    const el = page.current;
-    const reduce = reducedMotion();
-    const light = { x: el.clientWidth / 2, y: el.clientHeight * 0.28 };
-    const target = { ...light };
-    let idleSince = 0, frame = 0, boxes = [];
-    const state = letters.current.map(() => ({ x: 0, y: 0, r: 0, g: 0 }));
-
-    const measure = () => {
-      const origin = el.getBoundingClientRect();
-      const k = origin.width / el.offsetWidth || 1;   // the window may still be zooming open
-      // Measure each letter's resting centre (minus its current lean).
-      boxes = letters.current.map((letter, i) => {
-        if (!letter) return null;
-        const r = letter.getBoundingClientRect();
-        return { x: (r.left - origin.left + r.width / 2) / k - state[i].x, y: (r.top - origin.top + r.height / 2) / k - state[i].y };
-      });
+    const fit = () => {
+      const box = scroll.current, card = grid.current;
+      if (!box || !card) return;
+      const k = Math.min(1.35, (box.clientWidth - 220) / card.offsetWidth, (box.clientHeight - 120) / card.offsetHeight);
+      // Leave the normal-size window exactly as designed; only clearly bigger windows scale up.
+      card.style.setProperty("--k", k > 1.12 ? k.toFixed(3) : "1");
     };
-    const move = (event) => {
-      const origin = el.getBoundingClientRect();
-      target.x = event.clientX - origin.left;
-      target.y = event.clientY - origin.top;
-      idleSince = performance.now();
-    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(scroll.current);
+    ro.observe(grid.current);
+    return () => ro.disconnect();
+  }, []);
 
-    // Floating dust motes, brighter inside the light.
-    const canvas = dust.current, ctx = canvas.getContext("2d");
-    let motes = [];
-    const size = () => {
-      const d = Math.min(devicePixelRatio || 1, 2);
-      canvas.width = el.clientWidth * d; canvas.height = el.clientHeight * d;
-      ctx.setTransform(d, 0, 0, d, 0, 0);
-      motes = Array.from({ length: 70 }, () => ({
-        x: Math.random() * el.clientWidth, y: Math.random() * el.clientHeight,
-        r: Math.random() * 1.4 + 0.3, v: Math.random() * 8 + 4, p: Math.random() * Math.PI * 2,
-      }));
-      measure();
-    };
-
-    let last = performance.now();
-    const tick = (now) => {
-      frame = requestAnimationFrame(tick);
-      const dt = Math.min((now - last) / 1000, 0.05);
-      last = now;
-      if (now - idleSince > 2600) {
-        // Nobody's moving the mouse: let the lamp wander slowly over the name.
-        const s = now / 1000;
-        target.x = el.clientWidth * (0.5 + 0.34 * Math.sin(s * 0.45));
-        target.y = (boxes[0]?.y ?? el.clientHeight * 0.25) + 60 * Math.sin(s * 0.8);
-      }
-      const ease = 1 - Math.exp(-(reduce ? 30 : 7) * dt);
-      light.x += (target.x - light.x) * ease;
-      light.y += (target.y - light.y) * ease;
-      el.style.setProperty("--lx", light.x + "px");
-      el.style.setProperty("--ly", light.y + "px");
-
-      letters.current.forEach((letter, i) => {
-        const box = boxes[i];
-        if (!letter || !box) return;
-        const dx = box.x - light.x, dy = box.y - light.y;
-        const d = Math.hypot(dx, dy) || 1;
-        // Light reach and push scale with the letter size, so small screens stay tidy.
-        const size = letter.offsetHeight || 150;
-        const k = Math.max(0, 1 - d / Math.max(130, Math.min(RADIUS, size * 1.9)));
-        const push = reduce ? 0 : k * k * Math.min(PUSH, size * 0.16);
-        const s = state[i];
-        const f = 1 - Math.exp(-10 * dt);
-        s.x += ((dx / d) * push - s.x) * f;
-        s.y += ((dy / d) * push * 0.6 - s.y) * f;
-        s.r += ((dx / d) * k * k * (reduce ? 0 : 5) - s.r) * f;
-        s.g += (k - s.g) * f;
-        letter.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.r}deg)`;
-        letter.style.setProperty("--glow", s.g.toFixed(3));
-      });
-
-      ctx.clearRect(0, 0, el.clientWidth, el.clientHeight);
-      for (const m of motes) {
-        m.y -= m.v * dt;
-        m.x += Math.sin(now / 1400 + m.p) * 6 * dt;
-        if (m.y < -4) { m.y = el.clientHeight + 4; m.x = Math.random() * el.clientWidth; }
-        const lit = Math.max(0, 1 - Math.hypot(m.x - light.x, m.y - light.y) / 380);
-        ctx.fillStyle = `rgba(255, 214, 160, ${0.06 + lit * 0.55})`;
-        ctx.beginPath();
-        ctx.arc(m.x, m.y, m.r + lit * 0.8, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    };
-
-    size();
-    document.fonts?.ready.then(measure);
-    const scroller = el.querySelector(".about-scroll");
-    el.addEventListener("pointermove", move);
-    window.addEventListener("resize", size);
-    scroller.addEventListener("scroll", measure, { passive: true });
-    frame = requestAnimationFrame(tick);
-    return () => {
-      cancelAnimationFrame(frame);
-      el.removeEventListener("pointermove", move);
-      window.removeEventListener("resize", size);
-      scroller.removeEventListener("scroll", measure);
-    };
-  }, [name]);
-
-  // Typewriter for the role line (starts again when the language changes).
-  useEffect(() => { setTyped(reducedMotion() ? role : ""); }, [role]);
-  useEffect(() => {
-    if (typed === role || !role.startsWith(typed)) return;
-    const timer = setTimeout(() => setTyped(role.slice(0, typed.length + 1)), typed ? 38 : 700);
-    return () => clearTimeout(timer);
-  }, [typed, role]);
-
-  return <div className="page about" ref={page}>
-    <div className="about-light" aria-hidden="true" />
-    <canvas className="about-dust" ref={dust} aria-hidden="true" />
-    <div className="about-scroll">
-      <h2 key={name} className={"about-name" + (arabicName ? " is-words" : "")} aria-label={name}
-        style={{ "--n": arabicName ? name.length * 0.75 : parts.length }}>
-        {parts.map((ch, i) => <span key={i} className="about-letter" data-ch={ch} aria-hidden="true"
-          ref={(el) => (letters.current[i] = el)} style={{ "--i": i }}>{ch === " " ? "\u00a0" : ch}</span>)}
-      </h2>
-      <p className="about-role"><span>{typed}</span><i className="about-caret" aria-hidden="true" /></p>
-      <div className="about-meta">
-        <span>{tx(profile.location, language)}</span>
-        {tx(profile.status, language) && <span className="about-status"><i aria-hidden="true" />{tx(profile.status, language)}</span>}
-      </div>
-
-      <div className="about-body">
+  return <div className="page about">
+    <div className="about-scroll" ref={scroll}>
+      <div className="about-grid" ref={grid}>
         <figure className="about-portrait">
-          <svg className="about-ring" viewBox="0 0 200 200" aria-hidden="true">
-            <circle cx="100" cy="100" r="96" />
-            {Array.from({ length: 9 }, (_, i) => {
-              const a = (i / 9) * Math.PI * 2 + 0.3;
-              return <path key={i} className="about-leaf" d="M0 0q4-4.6 9 0q-4.6 4.3-9 0z"
-                transform={`translate(${100 + Math.cos(a) * 96} ${100 + Math.sin(a) * 96}) rotate(${(a * 180) / Math.PI + 60})`} />;
-            })}
-          </svg>
-          <div className="about-photo">
-            {profile.photo ? <img src={profile.photo} alt={name} /> : <span aria-hidden="true">{name[0]}</span>}
-          </div>
+          {profile.photo && <img src={profile.photo} alt={name} />}
+          <span className="about-light" aria-hidden="true" />
+          <span className="about-ivy" aria-hidden="true">
+            <IvyBorder seed={7} inset={8} radius={20} band={1.1}
+              strands={[{ at: 0.88, length: 0.2, dir: 1 }, { at: 0.38, length: 0.16, dir: 1 }, { at: 0.62, length: 0.08, dir: -1 }]} />
+          </span>
+          <figcaption>
+            <strong>{name}</strong>
+            <span>{tx(profile.role, language)}</span>
+          </figcaption>
         </figure>
-        <div className="about-text">
-          {about.map((text, i) => <p key={i} style={{ "--d": i }}>{text}</p>)}
-          <dl className="about-facts">
-            {profile.facts.map(([label, value], i) => <div key={i} style={{ "--d": i + about.length }}>
-              <dt>{tx(label, language)}</dt><dd>{tx(value, language)}</dd>
-            </div>)}
+
+        <section className="about-main">
+          <span className="about-eyebrow">{t.ui.aboutEyebrow}</span>
+          <h2 className="about-headline">{tx(profile.headline, language)}</h2>
+          <div className="about-tags">
+            <span className="about-tag"><Pin />{tx(profile.location, language)}</span>
+            {tx(profile.status, language) && <span className="about-tag about-tag--live"><i aria-hidden="true" />{tx(profile.status, language)}</span>}
+          </div>
+          <div className="about-text">
+            {tx(profile.about, language).map((text, i) => <p key={i}>{text}</p>)}
+          </div>
+          <dl className="about-stats">
+            {stats.map(([value, label]) => <div key={label}><dd>{value}</dd><dt>{label}</dt></div>)}
           </dl>
-        </div>
+          {profile.topSkills?.length > 0 && <div className="about-skills">
+            <span className="about-label">{t.ui.topSkills}</span>
+            <ul>{profile.topSkills.map((s) => <li key={s}><TechIcon name={s} />{s}</li>)}</ul>
+          </div>}
+          <div className="about-actions">
+            <button className="about-btn about-btn--primary" onClick={() => onOpen("works")}>{t.ui.seeWork}<Arrow /></button>
+            {profile.links?.linkedin && <a className="about-btn" href={profile.links.linkedin} target="_blank" rel="noreferrer"><LinkedInMark />LinkedIn</a>}
+          </div>
+        </section>
       </div>
     </div>
   </div>;

@@ -102,6 +102,7 @@ import {
   siExpo,
   siSpringboot,
   siGithubactions,
+  siJenkins,
   siTerraform,
   siGrafana,
   siElasticsearch,
@@ -211,6 +212,7 @@ const ICONS = Object.fromEntries([
   siExpo,
   siSpringboot,
   siGithubactions,
+  siJenkins,
   siTerraform,
   siGrafana,
   siElasticsearch,
@@ -222,6 +224,8 @@ const ICONS = Object.fromEntries([
 
 // Other ways people write these names.
 const ALIASES = {
+  csharp: "dotnet", cicd: "githubactions", githubaction: "githubactions", unity3d: "unity", godot: "godotengine",
+  reduxjs: "redux", reduxdotjs: "redux",
   js: "javascript", ts: "typescript", html: "html5", css3: "css", node: "nodedotjs", nodejs: "nodedotjs",
   next: "nextdotjs", nextjs: "nextdotjs", vue: "vuedotjs", vuejs: "vuedotjs", expressjs: "express",
   reactjs: "react", reactnative: "react", tailwind: "tailwindcss", postgres: "postgresql", mongo: "mongodb",
@@ -244,7 +248,11 @@ export function techIcon(name, explicit) {
 export function brightBrand(hex) {
   const n = parseInt(hex, 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
   const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  return lum < 0.28 ? "#ffffff" : "#" + hex;
+  if (lum < 0.2) return "#ffffff";
+  // Dim brand colours (Odoo's plum, MySQL's blue…) are lifted towards white so they read on dark green.
+  const k = lum < 0.5 ? (0.5 - lum) * 1.3 : 0;
+  const mix = (c) => Math.round(c + (255 - c) * k).toString(16).padStart(2, "0");
+  return "#" + mix(r) + mix(g) + mix(b);
 }
 
 export function TechIcon({ name, icon, className = "" }) {

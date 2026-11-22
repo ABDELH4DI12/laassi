@@ -1,204 +1,73 @@
-/* Languages: a vintage valve radio. Each language is a station on the dial. --sig is signal strength. */
-.stage--languages { --stage-bg: #0d0805; --stage-ink: #f3e3cc }
-.radio-room {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(12px, 3cqh, 22px);
-  padding: 22px 18px 18px;
-  overflow-y: auto;
-  background:
-    radial-gradient(60% 45% at 50% 68%, rgb(255 170 70 / calc(.05 + var(--sig) * .09)), transparent 70%),
-    radial-gradient(80% 60% at 50% 70%, #34200f, #140b05 55%, #0d0805 80%);
-}
-/* The table the radio stands on. */
-.radio-room::before {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 22%;
-  background:
-    repeating-linear-gradient(90deg, #00000014 0 2px, transparent 2px 11px),
-    linear-gradient(#2c180a, #170c05);
-  box-shadow: 0 -1px #ffffff12;
-  pointer-events: none;
-}
-.radio-room > * { position: relative; z-index: 1 }
-/* Centred when there's room; scrolls from the top (nothing cut off) when there isn't. */
-.radio-room > :first-child { margin-top: auto }
-.radio-room > :last-child { margin-bottom: auto }
-
-/* flex: none — never squeeze the greeting under the radio; the page scrolls instead. */
-.broadcast { flex: none; display: grid; place-items: center; width: min(760px, 100%); min-height: clamp(110px, 24cqh, 200px); text-align: center }
-.broadcast-static {
+/* Languages: greeting, vine ring and name per language, over a drifting voice-wave. */
+.lg-wave { position: absolute; z-index: 0; left: 0; right: 0; top: 56%; width: 100%; height: 26%; transform: translateY(-50%); overflow: hidden; pointer-events: none; opacity: .5 }
+.lg-wave-run { animation: lg-wave 16s linear infinite }
+@keyframes lg-wave { to { transform: translateX(-1000px) } }
+.lg-wave path { fill: none; stroke: #8fe05a; stroke-width: 1.4; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 4px #8fe05a) }
+.lg-wave .lg-wave-2 { stroke: #e4ffb8; opacity: .4 }
+.lg-scroll {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  image-rendering: pixelated;
-  opacity: .55;
-  mix-blend-mode: screen;
-  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent);
-  mask-image: radial-gradient(closest-side, #000 55%, transparent);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(16px, 3.5cqh, 34px);
+  overflow-y: auto;
+  padding: clamp(18px, 4cqh, 40px) clamp(18px, 4cqw, 56px);
+  scrollbar-width: thin;
+  scrollbar-color: #2b4a31 transparent;
 }
-.broadcast-body { filter: blur(calc((1 - var(--sig)) * 7px)) }
-.broadcast-hello {
+.lg-fit { display: flex; flex-direction: column; gap: clamp(16px, 3.5cqh, 34px); width: min(100%, 1000px); margin: 0 auto }
+.lg-head { text-align: center }
+.lg-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2.6cqw, 32px); width: min(100%, 1000px); margin: 0 auto }
+.lg-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: clamp(16px, 3cqh, 26px) 18px clamp(18px, 3cqh, 26px);
+  text-align: center;
+  backdrop-filter: blur(2px);
+  animation: g-rise .9s cubic-bezier(.16,1,.3,1) calc(.25s + var(--i) * .15s) both;
+  transition: transform .4s cubic-bezier(.16,1,.3,1), box-shadow .4s, border-color .4s;
+}
+.lg-card:hover { transform: translateY(-5px); border-color: #8fe05a55; box-shadow: 0 28px 54px -28px #000, 0 0 50px -18px #8fe05a99 }
+.lg-hello {
   margin: 0;
-  font: italic 400 clamp(42px, min(8cqw, 13cqh), 108px)/1.05 var(--font-display);
+  font: italic 400 clamp(30px, 4.2cqw, 46px)/1.2 var(--font-display);
   color: transparent;
-  background: linear-gradient(180deg, #fff3d9, #ffbd66 55%, #d27a2e);
+  background: linear-gradient(180deg, #fbfff4, #c8f59a 60%, #7fc24f);
   -webkit-background-clip: text;
   background-clip: text;
-  filter: drop-shadow(0 0 30px #ffb34755);
+  filter: drop-shadow(0 0 18px #8fe05a44);
+  transition: filter .4s;
 }
-/* Arabic greeting in Ruqaa: taller letters, a little more room. */
-.broadcast-hello.is-arabic { font-weight: 700; line-height: 1.35 }
-.broadcast-name { margin: 10px 0 0; font-size: 14px; letter-spacing: .32em; text-transform: uppercase; color: #ecd3ac }
-.broadcast-meta { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 10px; font-size: 14px; color: #bb9c76 }
-.fluency { display: flex; align-items: flex-end; gap: 3px; height: 18px }
-.fluency i { width: 5px; height: calc(var(--h) * 3.4px); border-radius: 1px; background: #ffffff26 }
-.fluency i.on { background: #ffb347; box-shadow: 0 0 6px #ffb34799 }
-.broadcast-searching {
-  position: absolute;
-  margin: 0;
-  font: 500 14px/1 var(--font-mono);
-  letter-spacing: .3em;
-  text-transform: uppercase;
-  color: #ecd3ac;
-  animation: searching 1.1s steps(2) infinite;
-}
-@keyframes searching { 50% { opacity: .35 } }
+.lg-hello.is-arabic { font-style: normal; font-weight: 700; line-height: 1.35 }
+.lg-card:hover .lg-hello { filter: drop-shadow(0 0 24px #8fe05a88) }
 
-.radio { width: min(860px, 100%) }
-.radio-top {
-  height: 16px;
-  margin: 0 26px;
-  border-radius: 14px 14px 0 0;
-  background: linear-gradient(#6f3f1d, #4a2810);
-  box-shadow: inset 0 1px #ffffff2b;
+.lg-ring { position: relative; width: clamp(120px, 15cqw, 160px); aspect-ratio: 1; margin: 4px 0 6px }
+.lg-ring svg { width: 100%; height: 100%; overflow: visible }
+.lg-ring circle { fill: none }
+.lg-track { stroke: #ffffff10; stroke-width: 5 }
+.lg-arc, .lg-arc-glow { stroke-linecap: round; stroke-dasharray: var(--lvl) 100; transform: rotate(-90deg); transform-origin: 80px 80px; animation: lg-fill 1.4s cubic-bezier(.3,.6,.2,1) calc(.6s + var(--i) * .15s) both }
+.lg-arc { stroke: var(--glow); stroke-width: 3 }
+.lg-arc-glow { stroke: var(--bloom); stroke-width: 10; opacity: .3; filter: blur(4px) }
+@keyframes lg-fill { from { stroke-dasharray: 0 100 } }
+.lg-tip { opacity: 0; animation: lg-tip .5s ease calc(1.9s + var(--i) * .15s) forwards; filter: drop-shadow(0 0 4px #8fe05a) }
+.lg-tip path { fill: #8fe05a }
+.lg-tip circle { fill: #e4ffb8 }
+@keyframes lg-tip { to { opacity: 1 } }
+.lg-ring-text { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 2px; padding: 22%; text-align: center }
+.lg-ring-text strong { font: 600 clamp(14px, 1.6cqw, 18px)/1.2 var(--font-display); color: #fbfdf7 }
+.lg-ring-text small { font: 500 11px/1 var(--font-mono); color: var(--muted) }
+.lg-card h3 { margin: 0; font: 600 clamp(17px, 1.9cqw, 21px)/1.2 var(--font-display); color: #fbfdf7 }
+.lg-native { font-size: 11.5px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--leaf) }
+
+@container stage (max-width: 760px) {
+  .lg-cards { grid-template-columns: 1fr; max-width: 360px }
+  .lg-scroll { justify-content: flex-start }
 }
-.radio-face {
-  display: grid;
-  grid-template-columns: minmax(150px, .8fr) 1.7fr;
-  gap: 22px;
-  padding: 22px;
-  border-radius: 24px;
-  background:
-    repeating-linear-gradient(92deg, #00000017 0 2px, transparent 2px 7px),
-    repeating-linear-gradient(88deg, #ffffff07 0 1px, transparent 1px 13px),
-    linear-gradient(180deg, #7a4520, #5b3016 55%, #47240f);
-  box-shadow: inset 0 2px #ffffff33, inset 0 -4px #0007, 0 0 0 2px #2a1407, 0 34px 60px #000d;
+@media (prefers-reduced-motion: reduce) {
+  .lg-wave-run, .lg-card, .lg-arc, .lg-arc-glow, .lg-tip { animation: none }
+  .lg-tip { opacity: 1 }
 }
-.speaker { position: relative; padding: 9px; border-radius: 14px; background: linear-gradient(#d4b064, #8a6a2f); box-shadow: inset 0 1px #fff7, 0 2px 4px #0008 }
-.speaker-cloth {
-  height: 100%;
-  min-height: clamp(90px, 22cqh, 170px);
-  border-radius: 9px;
-  background:
-    repeating-linear-gradient(45deg, #2e1d10 0 2px, #3f2817 2px 4px),
-    repeating-linear-gradient(-45deg, transparent 0 2px, #0000002e 2px 4px),
-    #33200f;
-  box-shadow: inset 0 0 22px #000b;
-  animation: thump .42s ease-in-out infinite alternate;
-}
-@keyframes thump { to { transform: scale(calc(1 + var(--sig) * .014)) } }
-.speaker-badge {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 7px 13px;
-  border-radius: 50%;
-  background: linear-gradient(#ecd086, #a07d3a);
-  box-shadow: 0 2px 5px #000a, inset 0 1px #fff9;
-  font: 700 14px/1 var(--font-serif);
-  letter-spacing: .1em;
-  color: #4a2c10;
-}
-.dial-panel { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
-/* The frequency scale reads left to right in every language. */
-.dial-glass {
-  direction: ltr;
-  position: relative;
-  height: 128px;
-  overflow: hidden;
-  border-radius: 10px;
-  cursor: ew-resize;
-  touch-action: none;
-  user-select: none;
-  background: radial-gradient(120% 140% at 50% 120%, #ffd590, #f3a54a 35%, #a95c1d 75%, #5b2e0c);
-  box-shadow:
-    inset 0 0 0 3px #c9a55c, inset 0 0 0 5px #4a2810, inset 0 0 32px #00000080,
-    0 0 calc(10px + var(--sig) * 44px) #ffb34766;
-  filter: brightness(calc(.8 + var(--sig) * .3));
-}
-/* Tick marks: minor every 2%, major every 10%. */
-.dial-glass::before {
-  content: "";
-  position: absolute;
-  inset: 32px 24px auto;
-  height: 16px;
-  background:
-    repeating-linear-gradient(90deg, #3a1c08 0 2px, transparent 2px 10%) 0 0 / 100% 100%,
-    repeating-linear-gradient(90deg, #3a1c0899 0 1px, transparent 1px 2%) 0 6px / 100% 10px no-repeat;
-}
-.dial-glass::after { content: ""; position: absolute; inset: 0; background: linear-gradient(170deg, #ffffff47, transparent 38%); pointer-events: none }
-.dial-scale span { position: absolute; top: 12px; transform: translateX(-50%); font: 600 12px/1 var(--font-serif); color: #3a1c08 }
-.dial-station {
-  position: absolute;
-  top: 62px;
-  transform: translateX(-50%);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font: 600 12.5px/1.1 var(--font-serif);
-  letter-spacing: .04em;
-  white-space: nowrap;
-  color: #3a1c08;
-  transition: background-color .2s, color .2s, box-shadow .2s;
-}
-.dial-station:hover { background: #3a1c0822 }
-.dial-station.is-on { background: #3a1c08; color: #ffd08a; box-shadow: 0 0 14px #ffcf8a }
-.dial-needle { position: absolute; top: 6px; bottom: 6px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: #d8251b; box-shadow: 0 0 6px #ff3b2f, 1px 0 #0006 }
-.dial-freq { position: absolute; right: 12px; bottom: 8px; font: 600 12px/1 var(--font-mono); color: #3a1c08cc }
-.dial-controls { display: flex; align-items: center; gap: 18px }
-/* The "magic eye" tuning tube: its dark wedge closes as the signal locks. */
-.magic-eye {
-  flex: none;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, #0b1a0f 17%, transparent 18%),
-    conic-gradient(from calc(180deg - var(--eye)), #07140b 0 calc(var(--eye) * 2), #5dff8f calc(var(--eye) * 2 + 3deg) 360deg);
-  box-shadow: 0 0 0 3px #161616, 0 0 0 5px #8a6a2f, 0 0 calc(var(--sig) * 20px) #5dff8f99, inset 0 0 9px #000;
-  filter: brightness(calc(.65 + var(--sig) * .55));
-}
-.dial-label { flex: 1; min-width: 0; font: 600 13px/1.2 var(--font-serif); letter-spacing: .2em; text-transform: uppercase; color: #f1d6a8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-.knob {
-  position: relative;
-  flex: none;
-  width: 86px;
-  height: 86px;
-  padding: 0;
-  border-radius: 50%;
-  background:
-    repeating-conic-gradient(from 0deg, transparent 0 6deg, #00000033 6deg 12deg),
-    radial-gradient(circle at 40% 35%, #8f5d35, #3a210f 72%);
-  box-shadow: 0 7px 12px #000b, inset 0 2px #ffffff33, 0 0 0 4px #2a1407;
-  transform: rotate(var(--turn));
-  cursor: grab;
-  touch-action: none;
-}
-.knob:active { cursor: grabbing }
-.knob span { position: absolute; top: 9px; left: 50%; width: 4px; height: 18px; border-radius: 2px; background: #ecc77f; transform: translateX(-50%); box-shadow: 0 0 4px #ecc77f88 }
-.radio-feet { display: flex; justify-content: space-between; padding: 0 70px }
-.radio-feet i { width: 64px; height: 10px; border-radius: 0 0 8px 8px; background: #2a1407 }
-.radio-hint { margin: 0; font-size: 13px; color: #a88c6b }
-@container stage (max-width: 720px) {
-  .radio-face { grid-template-columns: 1fr }
-  .dial-station { font-size: 11px; padding: 3px 6px }
-  .dial-station:nth-of-type(even) { top: 88px }
-  .speaker-cloth { min-height: 80px }
-  .knob { width: 64px; height: 64px }
-}
-@media (prefers-reduced-motion: reduce) { .speaker-cloth, .broadcast-searching { animation: none } }
